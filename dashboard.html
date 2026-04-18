@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - EmoSense</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <style>
+    body {
+      background: var(--bg-main);
+    }
+
+    .dashboard-container {
+      max-width: 1000px;
+      margin: 120px auto 60px;
+      padding: 0 6vw;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+
+    .dash-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 36px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .dash-subtitle {
+      margin-top: 8px;
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .btn-logout {
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: var(--bg-hover);
+      border-color: var(--text-secondary);
+    }
+
+    .dash-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .placeholder-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .placeholder-text {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav id="main-nav">
+    <a href="index.html" class="logo">
+      <span class="logo-dot"></span>
+      EmoSense
+    </a>
+  </nav>
+
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dash-title">Dashboard</h1>
+        <p class="dash-subtitle">Welcome, <span id="user-email">Loading...</span></p>
+      </div>
+      <button id="logout-btn" class="btn-logout">Sign out</button>
+    </div>
+
+    <div class="dash-card">
+      <div class="placeholder-icon">📊</div>
+      <div class="placeholder-text">Your emotion tracking analytics will appear here.</div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+
+</html>
