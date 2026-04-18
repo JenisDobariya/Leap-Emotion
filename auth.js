@@ -11,6 +11,7 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+window.db = typeof firebase.firestore === 'function' ? firebase.firestore() : null;
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // Helper: show error message
@@ -171,6 +172,9 @@ auth.onAuthStateChanged(function (user) {
       window.location.href = "login.html";
     }
   }
+  
+  // Remove the anti-FOUC class once auth state is confirmed and resolved
+  document.documentElement.classList.remove('auth-loading');
 });
 
 // ========== PASSWORD TOGGLE FUNCTION ==========

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- New -->
 
 <head>
   <meta charset="UTF-8">
@@ -8,12 +9,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
+  <script>document.documentElement.classList.add('auth-loading');</script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
 </head>
 
-<body>
+<body class="public-page">
 
   <nav id="main-nav">
     <a href="#" class="logo">
@@ -34,6 +36,10 @@
 
   <section class="hero">
     <div class="hero-bg-glow"></div>
+    <div style="margin: 0px auto 30px; text-align: center; width: 100%; max-width: 900px; position: relative;">
+      <img src="hero_image.png" alt="Human Emotion Analysis Graphic"
+        style="max-width: 100%; width: 100%; max-height: 600px; object-fit: fill; object-position: bottom; border-radius: 20px; box-shadow: 0 0 80px rgba(67, 97, 238, 0.15); border: 1px solid var(--border); opacity: 0.9;">
+    </div>
     <div class="badge"><span class="badge-dot"></span> Real-time emotion intelligence · Now in beta</div>
     <h1>Understand how people <em>truly</em> feel</h1>
     <p class="hero-sub">EmoSense reads facial expressions and behavioral signals to give you precise, real-time insight
@@ -47,10 +53,6 @@
         </svg>
         Watch demo
       </a>
-    </div>
-
-    <div style="margin-top: 50px; margin-bottom: 20px; text-align: center;">
-      <img src="hero_image.png" alt="Human Emotion Analysis Graphic" style="max-width: 100%; width: 100%; max-height: 400px; object-fit: cover; border-radius: 20px; box-shadow: 0 0 80px rgba(67, 97, 238, 0.15); border: 1px solid var(--border); opacity: 0.9;">
     </div>
 
     <div class="demo-widget">
@@ -147,11 +149,11 @@
 
   <div class="stats-strip">
     <div class="stat-item">
-      <span class="stat-num">97.4%</span>
+      <span class="stat-num">97%</span>
       <span class="stat-label">accuracy rate</span>
     </div>
     <div class="stat-item">
-      <span class="stat-num">28ms</span>
+      <span class="stat-num">2sec</span>
       <span class="stat-label">avg. response time</span>
     </div>
     <div class="stat-item">
@@ -168,7 +170,7 @@
     <div class="section-inner">
       <p class="section-tag">Capabilities</p>
       <h2 class="section-title">Every layer of human emotion, decoded</h2>
-      <div class="features-grid">
+      <!-- <div class="features-grid">
         <div class="feature-card">
           <div class="feat-icon" style="background:var(--bg-hover)">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
@@ -218,6 +220,65 @@
           <div class="feat-desc">On-device processing options, GDPR-compliant architecture, end-to-end encryption, and
             zero raw biometric data retention by default.</div>
         </div>
+      </div> -->
+
+
+
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <div class="feat-name">Edge-Powered AI Engine</div>
+          <div class="feat-desc">Our dedicated desktop software runs powerful deep-learning models locally on your Mini
+            PC, ensuring high-speed facial analysis without relying on expensive cloud processing.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.8"
+              stroke-linecap="round">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </div>
+          <div class="feat-name">Crowd & Multi-Face Tracking</div>
+          <div class="feat-desc">Simultaneously detects and analyzes up to 15 distinct faces in a single camera frame.
+            Perfect for tracking group engagement in retail aisles, exhibition booths, and queues.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
+              stroke-width="1.8" stroke-linecap="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div class="feat-name">Live Dashboard Synchronization</div>
+          <div class="feat-desc">While heavy video processing happens locally, anonymous emotion metrics are instantly
+            synced to your secure cloud database, allowing you to monitor live insights from any device.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
+              stroke-linecap="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <div class="feat-name">100% Anonymous & Private</div>
+          <div class="feat-desc">Privacy by design. The local software processes video frames in memory and instantly
+            discards them. Only anonymous emotion tallies are stored—no photos or personal data are ever saved.</div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -225,32 +286,37 @@
   <section class="how-section" id="how">
     <div class="section-inner">
       <p class="section-tag">How it works</p>
-      <h2 class="section-title">From input to insight in milliseconds</h2>
+      <h2 class="section-title">From hardware setup to real-time insights</h2>
       <div class="steps-grid">
+
         <div class="step-card">
           <div class="step-num">01</div>
-          <div class="step-title">Capture input</div>
-          <div class="step-desc">Connect a camera, microphone, or video stream via our SDK. Supports webcam, RTMP, HLS,
-            and file upload.</div>
+          <div class="step-title">Hardware Setup</div>
+          <div class="step-desc">Mount the HD camera in your target engagement zone and connect it directly to your
+            local mini PC or processing unit.</div>
         </div>
+
         <div class="step-card">
           <div class="step-num">02</div>
-          <div class="step-title">Detect & map</div>
-          <div class="step-desc">Our neural engine maps 72 facial landmarks and applies our FACS-trained classification
-            model.</div>
+          <div class="step-title">Install Application</div>
+          <div class="step-desc">Run our lightweight installer to securely deploy the emotion detection engine into your
+            dedicated local application directory.</div>
         </div>
+
         <div class="step-card">
           <div class="step-num">03</div>
-          <div class="step-title">Classify & score</div>
-          <div class="step-desc">Each frame is scored across 12 emotion dimensions with confidence levels and temporal
-            smoothing for stable output.</div>
+          <div class="step-title">Initialize Event</div>
+          <div class="step-desc">Launch the desktop software with your license key. The system instantly begins tracking
+            multiple faces, storing the data in a unified cloud structure.</div>
         </div>
+
         <div class="step-card">
           <div class="step-num">04</div>
-          <div class="step-title">Deliver insight</div>
-          <div class="step-desc">Receive real-time JSON over WebSocket or poll our REST endpoint. Plug directly into
-            your dashboard, CRM, or analytics stack.</div>
+          <div class="step-title">Analyze Dashboard</div>
+          <div class="step-desc">Log into the web portal from any device to view live emotional metrics, track audience
+            engagement trends, and export business insights.</div>
         </div>
+
       </div>
     </div>
   </section>
@@ -296,7 +362,7 @@
     </div>
   </section>
 
-  <section class="section" id="usecases" style="padding-top:0;">
+  <section class="section" id="usecases" style="padding-top:10;">
     <div class="section-inner">
       <p class="section-tag">Use cases</p>
       <h2 class="section-title">Built for every industry that cares about people</h2>
@@ -390,48 +456,6 @@
             <li><span class="plan-check">✓</span> Dedicated account manager</li>
           </ul>
           <a href="#" class="plan-btn">Contact sales</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-inner">
-      <p class="section-tag">What people say</p>
-      <h2 class="section-title">Trusted by researchers, designers, and product teams</h2>
-      <div class="testimonials-grid">
-        <div class="testi-card">
-          <div class="testi-quote">"EmoSense changed how we conduct usability testing. We can now see exactly where
-            users feel frustrated or delighted — without a single survey."</div>
-          <div class="testi-author">
-            <div class="testi-avatar">SR</div>
-            <div>
-              <div class="testi-name">Sarah Reeves</div>
-              <div class="testi-role">Head of UX, Stripe</div>
-            </div>
-          </div>
-        </div>
-        <div class="testi-card">
-          <div class="testi-quote">"The latency is genuinely impressive. We integrated it into our mental health
-            platform in under a week and our therapists love the real-time insight panel."</div>
-          <div class="testi-author">
-            <div class="testi-avatar">DK</div>
-            <div>
-              <div class="testi-name">Dr. David Kim</div>
-              <div class="testi-role">CTO, MindBridge Health</div>
-            </div>
-          </div>
-        </div>
-        <div class="testi-card">
-          <div class="testi-quote">"We replaced our post-screening focus groups with EmoSense for test audiences. The
-            emotional timeline data is more granular than anything we've had before."</div>
-          <div class="testi-author">
-            <div class="testi-avatar">AL</div>
-            <div>
-              <div class="testi-name">Amira Lorca</div>
-              <div class="testi-role">Research Director, A24</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

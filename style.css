@@ -6,6 +6,23 @@
   padding: 0;
 }
 
+/* Anti-FOUC (Flash of Unauthenticated Content) classes */
+.auth-loading body {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.auth-loading body.public-page {
+  visibility: visible;
+  opacity: 1;
+}
+
+.auth-loading body.public-page .nav-right {
+  visibility: hidden;
+  opacity: 0;
+}
+
+
 :root {
   /* Mapping the 6 colors to a strict Dark Theme. 
       No #ffffff or pure white is used anywhere.
@@ -159,15 +176,15 @@ nav.scrolled {
 
 /* ===================== HERO ===================== */
 .hero {
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
-  padding: 130px 6vw 90px;
   position: relative;
   overflow: hidden;
+  padding-top: 68px;
 }
 
 .hero-bg-glow {
@@ -176,7 +193,7 @@ nav.scrolled {
   left: 50%;
   transform: translateX(-50%);
   width: 900px;
-  height: 600px;
+  height: 50px;
   background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
@@ -311,11 +328,13 @@ h1 em {
 /* ===================== DEMO WIDGET ===================== */
 .demo-widget {
   margin-top: 80px;
+  margin-bottom: 80px;
+
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 28px;
   padding: 36px 40px;
-  max-width: 720px;
+  max-width: 700px;
   width: 100%;
   box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
   animation: fadeSlideUp 0.9s 0.45s ease both;
@@ -451,8 +470,8 @@ h1 em {
 .stats-strip {
   display: flex;
   justify-content: center;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-top: 10px solid var(--border);
+  border-bottom: 10px solid var(--border);
   background: var(--bg-card);
 }
 
@@ -515,7 +534,7 @@ h1 em {
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2px;
   border: 1px solid var(--border);
   border-radius: 24px;
@@ -1078,5 +1097,6 @@ footer {
 
   .demo-widget {
     padding: 24px 20px;
+    margin-top: 20px;
   }
 }

@@ -8,106 +8,1167 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
+  <script>document.documentElement.classList.add('auth-loading');</script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
   <style>
     body {
       background: var(--bg-main);
     }
 
-    .dashboard-container {
-      max-width: 1000px;
-      margin: 120px auto 60px;
-      padding: 0 6vw;
-    }
-
-    .dashboard-header {
+    /* ── Layout ── */
+    .dash-wrap {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 40px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 24px;
+      min-height: 100vh;
+      padding-top: 68px;
     }
 
-    .dash-title {
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0 24px;
+      position: fixed;
+      top: 68px;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      padding: 0 16px;
+      margin-bottom: 28px;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .sidebar-link:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .sidebar-link.active {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .sidebar-link svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .sidebar-link.active svg {
+      opacity: 1;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 0 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--bg-hover);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-plan {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Main Content ── */
+    .dash-main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 40px 40px 60px;
+      max-width: calc(100% - 240px);
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .page-title {
       font-family: 'DM Serif Display', serif;
-      font-size: 36px;
+      font-size: 32px;
       color: var(--text-primary);
       line-height: 1;
     }
 
-    .dash-subtitle {
-      margin-top: 8px;
+    .page-subtitle {
+      margin-top: 6px;
+      font-size: 14px;
       color: var(--text-secondary);
-      font-size: 15px;
+      font-weight: 300;
     }
 
-    .btn-logout {
-      padding: 10px 20px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-primary);
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-sm {
+      padding: 9px 18px;
       border-radius: 100px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
       cursor: pointer;
       transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .btn-logout:hover {
+    .btn-sm-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .btn-sm-ghost:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
       background: var(--bg-hover);
+    }
+
+    .btn-sm-primary {
+      background: var(--text-primary);
+      border: 1px solid var(--text-primary);
+      color: var(--text-inverse);
+    }
+
+    .btn-sm-primary:hover {
+      background: var(--text-secondary);
       border-color: var(--text-secondary);
     }
 
-    .dash-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      text-align: center;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    /* ── Stat Cards ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
-    .placeholder-icon {
-      font-size: 48px;
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      transition: box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .stat-card-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-card-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card-change {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .stat-card-change.up {
+      color: #6fcf97;
+    }
+
+    .stat-card-change.down {
+      color: #eb5757;
+    }
+
+    /* ── Grid Panels ── */
+    .panels-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .panel-full {
+      grid-column: 1 / -1;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
     }
 
-    .placeholder-text {
-      font-size: 18px;
+    .panel-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .panel-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .panel-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: var(--bg-hover);
       color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Chart bars (CSS only) ── */
+    .chart-area {
+      height: 160px;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding-top: 8px;
+    }
+
+    .chart-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chart-bar-wrap {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .chart-bar {
+      width: 70%;
+      border-radius: 6px 6px 0 0;
+      background: var(--border);
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .chart-bar.highlight {
+      background: var(--text-secondary);
+    }
+
+    .chart-bar:hover {
+      background: var(--text-primary);
+    }
+
+    .chart-bar-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ── Emotion Donut (SVG rings) ── */
+    .emotion-distribution {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .donut-wrap {
+      flex-shrink: 0;
+    }
+
+    .emo-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .emo-legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .emo-legend-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .emo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .emo-legend-name {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .emo-legend-val {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .emo-legend-bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--bg-main);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .emo-legend-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+    }
+
+    /* ── Sessions Table ── */
+    .sessions-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .sessions-table th {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 0 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sessions-table td {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+
+    .sessions-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .session-name {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .emotion-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ── Activity feed ── */
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    .activity-text {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .activity-text strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Live indicator ── */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #6fcf97;
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #6fcf97;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+
+      .dash-main {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 24px 20px;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .panels-row {
+        grid-template-columns: 1fr;
+      }
+
+      .desktop-only-divider {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
 </head>
 
-<body>
+<body class="public-page">
 
   <nav id="main-nav">
     <a href="index.html" class="logo">
       <span class="logo-dot"></span>
       EmoSense
     </a>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span class="live-badge"><span class="live-dot"></span> Live</span>
+      <div class="nav-right" id="nav-right-area"></div>
+    </div>
   </nav>
 
-  <div class="dashboard-container">
-    <div class="dashboard-header">
-      <div>
-        <h1 class="dash-title">Dashboard</h1>
-        <p class="dash-subtitle">Welcome, <span id="user-email">Loading...</span></p>
+  <div class="dash-wrap">
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <a class="sidebar-link active" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          Overview
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4l3 3" />
+          </svg>
+          Live Sessions
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M3 3h18v18H3z" />
+            <path d="M3 9h18M9 21V9" />
+          </svg>
+          Analytics
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14,2 14,8 20,8" />
+          </svg>
+          Reports
+        </a>
       </div>
-      <button id="logout-btn" class="btn-logout">Sign out</button>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Settings</div>
+        <a class="sidebar-link" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" />
+          </svg>
+          Profile
+        </a>
+        <a class="sidebar-link" href="#">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </a>
+        <a class="sidebar-link" href="contact.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Support
+        </a>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-avatar" id="sidebar-avatar">—</div>
+          <div>
+            <div class="user-name" id="sidebar-name">Loading...</div>
+            <div class="user-plan">Pro Plan · Beta</div>
+          </div>
+        </div>
+        <button id="logout-btn" class="sidebar-link" style="margin-top:8px; color:#eb5757;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eb5757" stroke-width="1.8">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16,17 21,12 16,7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign out
+        </button>
+      </div>
+    </aside>
+
+    <main class="dash-main">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back, <span id="user-email">—</span> · Today, <span id="today-date"></span>
+          </p>
+        </div>
+      </div>
+
+
+      <div class="panel panel-full"
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
+
+        <div style="flex: 1; min-width: 250px;">
+          <div class="panel-title">1. Download Desktop Application</div>
+          <div class="panel-sub">Install the emotion detection engine on your local mini PC.</div>
+          <a href="https://drive.google.com/file/d/1CtL3eOz1JnjmImU0F7yw4OYASshu0z0F/view?usp=sharing" target="_blank"
+            class="btn-sm btn-sm-ghost" style="margin-top: 14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download App
+          </a>
+        </div>
+
+        <div style="width: 1px; height: 60px; background: var(--border); display: block;" class="desktop-only-divider">
+        </div>
+
+        <!-- <div style="flex: 1.5; min-width: 300px;">
+          <div class="panel-title">2. License Key Activation</div>
+          <div class="panel-sub">Request a key to activate your camera, or enter your assigned key below.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+            <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX"
+              style="flex:1; min-width: 180px; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;">
+            <button id="activate-key-btn" class="btn-sm btn-sm-primary">Save Key</button>
+            <button id="request-key-btn" class="btn-sm btn-sm-ghost">Request Key</button>
+          </div>
+          <div id="license-status" style="font-size: 11.5px; margin-top: 10px; color: var(--text-muted);"></div>
+        </div> -->
+
+        <div style="flex: 1.5; min-width: 300px;">
+          <div class="panel-title">2. License Key Activation</div>
+          <div class="panel-sub">Request a key to activate your camera. It will appear here once approved.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+            <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" readonly
+              style="flex:1; min-width: 180px; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; cursor: default;">
+            <button id="request-key-btn" class="btn-sm btn-sm-ghost">Request Key</button>
+          </div>
+          <div id="license-status" style="font-size: 11.5px; margin-top: 10px; color: var(--text-muted);"></div>
+        </div>
+
+      </div>
+  </div>
+
+  <div class="panels-row">
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Analyses Over Time</div>
+          <div class="panel-sub">Daily count · last 7 days</div>
+        </div>
+        <span class="panel-badge">7 days</span>
+      </div>
+      <div class="chart-area" id="bar-chart"></div>
     </div>
 
-    <div class="dash-card">
-      <div class="placeholder-icon">📊</div>
-      <div class="placeholder-text">Your emotion tracking analytics will appear here.</div>
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Emotion Distribution</div>
+          <div class="panel-sub">Across all sessions this week</div>
+        </div>
+      </div>
+      <div class="emotion-distribution">
+        <div class="donut-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="42" fill="none" stroke="var(--bg-main)" stroke-width="14" />
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#CCD0CF" stroke-width="14" stroke-dasharray="100.5 163.8"
+              stroke-dashoffset="0" stroke-linecap="butt" transform="rotate(-90 55 55)" />
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#9BA8AB" stroke-width="14" stroke-dasharray="58.2 206.1"
+              stroke-dashoffset="-100.5" stroke-linecap="butt" transform="rotate(-90 55 55)" />
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#4A5C6A" stroke-width="14" stroke-dasharray="47.6 216.7"
+              stroke-dashoffset="-158.7" stroke-linecap="butt" transform="rotate(-90 55 55)" />
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#253745" stroke-width="14" stroke-dasharray="31.7 232.6"
+              stroke-dashoffset="-206.3" stroke-linecap="butt" transform="rotate(-90 55 55)" />
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#11212D" stroke-width="14" stroke-dasharray="26.4 237.9"
+              stroke-dashoffset="-238" stroke-linecap="butt" transform="rotate(-90 55 55)" />
+            <text x="55" y="51" text-anchor="middle" font-family="DM Serif Display,serif" font-size="18"
+              fill="var(--text-primary)">38%</text>
+            <text x="55" y="65" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9"
+              fill="var(--text-muted)">Joy</text>
+          </svg>
+        </div>
+        <div class="emo-legend">
+          <div class="emo-legend-row">
+            <div class="emo-legend-left">
+              <div class="emo-dot" style="background:#CCD0CF"></div><span class="emo-legend-name">Joy</span>
+            </div>
+            <div class="emo-legend-bar-track">
+              <div class="emo-legend-bar-fill" style="width:38%;background:#CCD0CF"></div>
+            </div>
+            <span class="emo-legend-val">38%</span>
+          </div>
+          <div class="emo-legend-row">
+            <div class="emo-legend-left">
+              <div class="emo-dot" style="background:#9BA8AB"></div><span class="emo-legend-name">Surprise</span>
+            </div>
+            <div class="emo-legend-bar-track">
+              <div class="emo-legend-bar-fill" style="width:22%;background:#9BA8AB"></div>
+            </div>
+            <span class="emo-legend-val">22%</span>
+          </div>
+          <div class="emo-legend-row">
+            <div class="emo-legend-left">
+              <div class="emo-dot" style="background:#4A5C6A"></div><span class="emo-legend-name">Neutral</span>
+            </div>
+            <div class="emo-legend-bar-track">
+              <div class="emo-legend-bar-fill" style="width:18%;background:#4A5C6A"></div>
+            </div>
+            <span class="emo-legend-val">18%</span>
+          </div>
+          <div class="emo-legend-row">
+            <div class="emo-legend-left">
+              <div class="emo-dot" style="background:#253745"></div><span class="emo-legend-name">Sadness</span>
+            </div>
+            <div class="emo-legend-bar-track">
+              <div class="emo-legend-bar-fill" style="width:12%;background:#253745"></div>
+            </div>
+            <span class="emo-legend-val">12%</span>
+          </div>
+          <div class="emo-legend-row">
+            <div class="emo-legend-left">
+              <div class="emo-dot" style="background:#11212D;border:1px solid var(--border)"></div><span
+                class="emo-legend-name">Anger</span>
+            </div>
+            <div class="emo-legend-bar-track">
+              <div class="emo-legend-bar-fill" style="width:10%;background:#4A5C6A"></div>
+            </div>
+            <span class="emo-legend-val">10%</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <div class="panels-row">
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Recent Sessions</div>
+          <div class="panel-sub">Last 5 analysis sessions</div>
+        </div>
+        <a href="#" style="font-size:12px;color:var(--text-secondary);text-decoration:none;">View all →</a>
+      </div>
+      <table class="sessions-table">
+        <thead>
+          <tr>
+            <th>Session</th>
+            <th>Top Emotion</th>
+            <th>Analyses</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="session-name">UX Study #14</span><br><span
+                style="font-size:11px;color:var(--text-muted)">Apr 17, 2026</span></td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#CCD0CF"></span>Joy 84%</span>
+            </td>
+            <td>1,204</td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#6fcf97"></span>Live</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="session-name">Focus Group B</span><br><span
+                style="font-size:11px;color:var(--text-muted)">Apr 16, 2026</span></td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#9BA8AB"></span>Surprise
+                61%</span></td>
+            <td>3,891</td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="session-name">Ad Creative Test</span><br><span
+                style="font-size:11px;color:var(--text-muted)">Apr 15, 2026</span></td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#CCD0CF"></span>Joy 72%</span>
+            </td>
+            <td>5,430</td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="session-name">Interview Panel</span><br><span
+                style="font-size:11px;color:var(--text-muted)">Apr 14, 2026</span></td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Neutral
+                55%</span></td>
+            <td>870</td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="session-name">Therapy Trial #3</span><br><span
+                style="font-size:11px;color:var(--text-muted)">Apr 13, 2026</span></td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#253745"></span>Sadness
+                48%</span></td>
+            <td>2,110</td>
+            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Activity</div>
+          <div class="panel-sub">Recent events</div>
+        </div>
+      </div>
+      <div class="activity-feed">
+        <div class="activity-item">
+          <div class="activity-icon">📡</div>
+          <div>
+            <div class="activity-text"><strong>UX Study #14</strong> started a live session</div>
+            <div class="activity-time">2 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">📊</div>
+          <div>
+            <div class="activity-text">Weekly report for <strong>Apr 7–13</strong> is ready</div>
+            <div class="activity-time">1 hour ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">✅</div>
+          <div>
+            <div class="activity-text"><strong>Ad Creative Test</strong> completed — 5,430 analyses</div>
+            <div class="activity-time">Yesterday, 4:22 PM</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">🔑</div>
+          <div>
+            <div class="activity-text">New API key generated for <strong>Production</strong></div>
+            <div class="activity-time">Apr 15, 2026</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">🧪</div>
+          <div>
+            <div class="activity-text">Model accuracy updated to <strong>97.4%</strong></div>
+            <div class="activity-time">Apr 14, 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </main>
+  </div>
   <script src="auth.js"></script>
+
+  <script>
+    // Set today's date
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    // Populate user info and handle License Key State
+    // firebase.auth().onAuthStateChanged(function (user) {
+    //   if (user) {
+    //     const email = user.email || user.displayName || 'User';
+    //     const initials = email.slice(0, 2).toUpperCase();
+    //     document.getElementById('user-email').textContent = email.split('@')[0];
+    //     document.getElementById('sidebar-name').textContent = email; 
+    //     document.getElementById('sidebar-avatar').textContent = initials;
+
+    //     const db = firebase.firestore();
+    //     const licenseInput = document.getElementById('license-input');
+    //     const licenseStatus = document.getElementById('license-status');
+    //     const requestKeyBtn = document.getElementById('request-key-btn');
+
+    //     // 1. Check if the user already has an active license key assigned
+    //     db.collection("users").doc(user.uid).get().then((doc) => {
+    //       if (doc.exists && doc.data().activeLicenseKey) {
+    //         licenseInput.value = doc.data().activeLicenseKey;
+    //         licenseInput.style.borderColor = "#6fcf97";
+    //         licenseStatus.style.color = "#6fcf97";
+    //         licenseStatus.textContent = "Your license key is active and ready.";
+    //         requestKeyBtn.style.display = "none";
+    //       } else {
+    //         // 2. If no key is assigned, check if they already requested one
+    //         db.collection("license_requests").where("userId", "==", user.uid).get().then((snapshot) => {
+    //           if (!snapshot.empty) {
+    //             requestKeyBtn.textContent = "Already Requested";
+    //             requestKeyBtn.disabled = true;
+    //             licenseStatus.style.color = "var(--text-secondary)";
+    //             licenseStatus.textContent = "Your request is pending admin approval.";
+    //           }
+    //         });
+    //       }
+    //     }).catch(err => console.log("Error fetching user data:", err));
+    //   }
+    // });
+
+    // Populate user info and handle License Key State
+    // Populate user info and handle License Key State
+    firebase.auth().onAuthStateChanged(function (user) {
+      if (user) {
+        const email = user.email || user.displayName || 'User';
+        const initials = email.slice(0, 2).toUpperCase();
+        document.getElementById('user-email').textContent = email.split('@')[0];
+        document.getElementById('sidebar-name').textContent = email;
+        document.getElementById('sidebar-avatar').textContent = initials;
+
+        const db = firebase.firestore();
+        const licenseInput = document.getElementById('license-input');
+        const licenseStatus = document.getElementById('license-status');
+        const requestKeyBtn = document.getElementById('request-key-btn');
+
+        // Look up the user's requests in the license_requests collection
+        db.collection("license_requests").where("email", "==", user.email).get().then((snapshot) => {
+          if (!snapshot.empty) {
+
+            let approvedRequest = null;
+            // Check if they have an approved request
+            snapshot.forEach(doc => {
+              if (doc.data().status === "approved") {
+                approvedRequest = doc.data();
+              }
+            });
+
+            if (approvedRequest && approvedRequest.licenseKey) {
+              // 1. Key is approved, show it
+              licenseInput.value = approvedRequest.licenseKey;
+              licenseInput.style.borderColor = "#6fcf97";
+              licenseStatus.style.color = "#6fcf97";
+              licenseStatus.textContent = "Your license key is active and ready.";
+              requestKeyBtn.style.display = "none";
+            } else {
+              // 2. Request exists but is still pending
+              requestKeyBtn.textContent = "Already Requested";
+              requestKeyBtn.disabled = true;
+              licenseStatus.style.color = "var(--text-secondary)";
+              licenseStatus.textContent = "Your request is pending admin approval.";
+            }
+          }
+        }).catch(err => console.log("Error fetching user data:", err));
+      }
+    });
+
+
+    // Populate user info and handle License Key State LIVE === this code is for the backup if i am not getting the refresh on the lickey
+    // firebase.auth().onAuthStateChanged(function (user) {
+    //   if (user) {
+    //     const email = user.email || user.displayName || 'User';
+    //     const initials = email.slice(0, 2).toUpperCase();
+    //     document.getElementById('user-email').textContent = email.split('@')[0];
+    //     document.getElementById('sidebar-name').textContent = email;
+    //     document.getElementById('sidebar-avatar').textContent = initials;
+
+    //     const db = firebase.firestore();
+    //     const licenseInput = document.getElementById('license-input');
+    //     const licenseStatus = document.getElementById('license-status');
+    //     const requestKeyBtn = document.getElementById('request-key-btn');
+
+    //     // Use onSnapshot instead of get() for a REAL-TIME live connection
+    //     db.collection("license_requests")
+    //       .where("email", "==", user.email)
+    //       .onSnapshot((snapshot) => {
+    //         if (!snapshot.empty) {
+    //           let approvedRequest = null;
+
+    //           // Loop through to find an approved request
+    //           snapshot.forEach(doc => {
+    //             if (doc.data().status === "approved") {
+    //               approvedRequest = doc.data();
+    //             }
+    //           });
+
+    //           if (approvedRequest && approvedRequest.licenseKey) {
+    //             // Key is approved, show it instantly
+    //             licenseInput.value = approvedRequest.licenseKey;
+    //             licenseInput.style.borderColor = "#6fcf97";
+    //             licenseStatus.style.color = "#6fcf97";
+    //             licenseStatus.textContent = "Your license key is active and ready.";
+    //             requestKeyBtn.style.display = "none"; 
+    //           } else {
+    //             // Request exists but is still pending
+    //             requestKeyBtn.textContent = "Already Requested";
+    //             requestKeyBtn.disabled = true;
+    //             licenseStatus.style.color = "var(--text-secondary)";
+    //             licenseStatus.textContent = "Your request is pending admin approval.";
+    //           }
+    //         } else {
+    //             console.log("No license requests found for this email.");
+    //         }
+    //       }, (error) => {
+    //         // This will tell us if there is a Firebase permissions issue
+    //         console.error("Firebase Error Fetching Key:", error);
+    //         licenseStatus.style.color = "#eb5757";
+    //         licenseStatus.textContent = "Database connection error. Check console.";
+    //       });
+    //   }
+    // });
+
+    // Handle Requesting a Key (Free EmailJS Version)
+    const requestKeyBtn = document.getElementById('request-key-btn');
+    const licenseStatus = document.getElementById('license-status');
+
+    requestKeyBtn.addEventListener('click', () => {
+      const user = firebase.auth().currentUser;
+
+      if (!user) {
+        licenseStatus.style.color = "#eb5757";
+        licenseStatus.textContent = "Error: You must be logged in to request a key.";
+        return;
+      }
+
+      requestKeyBtn.textContent = "Requesting...";
+      requestKeyBtn.disabled = true;
+
+      const db = firebase.firestore();
+
+      // First, save the request to Firebase Firestore
+      db.collection("license_requests").add({
+        email: user.email,
+        requestDate: firebase.firestore.FieldValue.serverTimestamp(),
+        status: "pending"
+      }).then(() => {
+
+        // Second, trigger the email notification via EmailJS
+        const templateParams = {
+          client_email: user.email,
+          user_id: user.uid
+        };
+        return emailjs.send('service_m1az0ba', 'template_q4k8iae', templateParams);
+
+      }).then(() => {
+        // Success: Update the UI to show they can't request again
+        requestKeyBtn.textContent = "Already Requested";
+        licenseStatus.style.color = "var(--text-secondary)";
+        licenseStatus.textContent = "Your request is pending admin approval.";
+      }).catch((error) => {
+        requestKeyBtn.textContent = "Request Key";
+        requestKeyBtn.disabled = false;
+        licenseStatus.style.color = "#eb5757";
+        licenseStatus.textContent = "Error sending request. Please contact support.";
+        console.error("Error: ", error);
+      });
+    });
+
+    // 2. Handle Saving/Activating the Key
+    activateKeyBtn.addEventListener('click', () => {
+      const key = licenseInput.value.trim();
+      const user = firebase.auth().currentUser;
+
+      if (!key) {
+        licenseStatus.style.color = "#eb5757";
+        licenseStatus.textContent = "Please enter a valid license key.";
+        return;
+      }
+
+      if (key.length < 10) {
+        licenseStatus.style.color = "#eb5757";
+        licenseStatus.textContent = "Invalid license key format.";
+        return;
+      }
+
+      activateKeyBtn.textContent = "Saving...";
+
+      const db = firebase.firestore();
+      db.collection("users").doc(user.uid).set({
+        activeLicenseKey: key,
+        licenseUpdated: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true }).then(() => {
+        activateKeyBtn.textContent = "Saved";
+        licenseInput.style.borderColor = "#6fcf97";
+        licenseStatus.style.color = "#6fcf97";
+        licenseStatus.textContent = "License key saved successfully! Your desktop app is ready to connect.";
+
+        setTimeout(() => {
+          activateKeyBtn.textContent = "Save Key";
+        }, 3000);
+      }).catch((error) => {
+        activateKeyBtn.textContent = "Save Key";
+        licenseStatus.style.color = "#eb5757";
+        licenseStatus.textContent = "Failed to save key. Try again.";
+        console.error(error);
+      });
+    });
+  </script>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    emailjs.init('K0jFkeZMwZA4IEFrG'); // Replace with your EmailJS Public Key
+  </script>
+
+
 </body>
 
 </html>
