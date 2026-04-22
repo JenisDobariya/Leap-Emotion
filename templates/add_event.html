@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Event — Event Analytics Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+        rel="stylesheet">
+    <script src="{{ url_for('static', filename='firebase-service.js') }}?v=6"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
+
+    <style>
+        :root {
+            --bg: #050a14;
+            --surface: #0d1626;
+            --surface2: #111e35;
+            --border: #1c2e4a;
+            --accent: #00d4ff;
+            --accent2: #7c3aed;
+            --accent3: #10b981;
+            --danger: #ef4444;
+            --text: #e2eaf8;
+            --text-muted: #8aafd4;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            font-family: 'Syne', sans-serif;
+            color: var(--text);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Grid bg */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb1,
+        .orb2 {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb1 {
+            top: -200px;
+            right: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+        }
+
+        .orb2 {
+            bottom: -150px;
+            left: -150px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
+        }
+
+        /* NAVBAR */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.06em;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.75);
+            }
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* MAIN */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 4rem;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .page-title span {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-sub {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            margin-top: 6px;
+        }
+
+        /* CARD */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-card-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .card-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--accent);
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.08em;
+            margin-left: auto;
+        }
+
+        .form-card-body {
+            padding: 1.8rem 1.5rem;
+        }
+
+        /* ALERT */
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* FORM GRID */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .form-control::placeholder {
+            color: #3a5070;
+        }
+
+        .form-control::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+            transform: scale(1.015);
+        }
+
+        .form-control[readonly] {
+            color: var(--accent);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            cursor: default;
+        }
+
+        /* ERROR TEXT */
+        .error-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--danger);
+            margin-top: 5px;
+            letter-spacing: 0.05em;
+            min-height: 16px;
+        }
+
+        /* LICENSE ROW */
+        .lic-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .lic-row .form-control {
+            flex: 1;
+        }
+
+        .btn-lic {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border: 1px solid;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-generate {
+            background: transparent;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-generate:hover {
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: 0 0 16px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-copy {
+            background: transparent;
+            border-color: var(--accent3);
+            color: var(--accent3);
+        }
+
+        .btn-copy:hover:not(:disabled) {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-copy:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* DIVIDER */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1.5rem 0;
+        }
+
+        /* SUBMIT */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #0096cc);
+            color: #000;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 0 28px rgba(0, 212, 255, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Copy toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface);
+            border: 1px solid var(--accent3);
+            color: var(--accent3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 540px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .lic-row {
+                flex-wrap: wrap;
+            }
+
+            .btn-lic {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="orb1"></div>
+    <div class="orb2"></div>
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="nav-brand">
+            <div class="nav-dot"></div>
+            ANALYTICs
+        </div>
+        <a href="/dashboard" class="btn-back">← BACK</a>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="container">
+
+        <div class="page-header">
+            <div class="page-title">Add <span>New Event</span></div>
+            <div class="page-sub">FILL IN THE DETAILS TO REGISTER YOUR EVENT</div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-card-header">
+                <span class="form-card-title">Event Details</span>
+                <span class="card-tag">NEW ENTRY</span>
+            </div>
+
+            <div class="form-card-body">
+
+                {% if error %}
+                <div class="alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" onsubmit="return validateForm()">
+
+                    <!-- Row 1: Name + Date -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Event Name</label>
+                            <input type="text" name="event_name" id="event_name" class="form-control"
+                                placeholder="Enter event name">
+                            <div class="error-text" id="eventNameError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Event Date (DD/MM/YYYY)</label>
+                            <input type="text" name="event_date" id="event_date" class="form-control"
+                                placeholder="DD/MM/YYYY">
+                            <div class="error-text" id="eventDateError"></div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Start + End time -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" name="start_time" id="start_time" class="form-control">
+                            <div class="error-text" id="startTimeError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">End Time</label>
+                            <input type="time" name="end_time" id="end_time" class="form-control">
+                            <div class="error-text" id="endTimeError"></div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Handler (full width) -->
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label class="form-label">Handling Person Name</label>
+                            <input type="text" name="handler" id="handler" class="form-control"
+                                placeholder="Enter handler name">
+                            <div class="error-text" id="handlerError"></div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- License Key -->
+                    <div class="form-group">
+                        <label class="form-label">License Key</label>
+                        <div class="lic-row">
+                            <input type="text" name="lic_key" id="lic_key" class="form-control" readonly
+                                placeholder="Click Generate →">
+                            <button type="button" class="btn-lic btn-generate" id="genBtn" onclick="generateLicKey()">
+                                <div class="spinner" id="btnSpinner"></div>
+                                <span id="btnText">GENERATE</span>
+                            </button>
+                            <button type="button" class="btn-lic btn-copy" id="copyBtn" onclick="copyLicKey()"
+                                disabled>COPY</button>
+                        </div>
+                        <div class="error-text" id="licKeyError"></div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-submit">SAVE EVENT →</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">✓ LICENSE KEY COPIED</div>
+
+    <script>
+        function validateForm() {
+            let valid = true;
+
+            const fields = [
+                ['event_name', 'eventNameError', 'Event name is required'],
+                ['event_date', 'eventDateError', 'Event date is required'],
+                ['start_time', 'startTimeError', 'Start time is required'],
+                ['end_time', 'endTimeError', 'End time is required'],
+                ['handler', 'handlerError', 'Handling person name is required'],
+                ['lic_key', 'licKeyError', 'License key is required']
+            ];
+
+            fields.forEach(([field, errorId, message]) => {
+                document.getElementById(errorId).innerText = '';
+                if (!document.getElementById(field).value.trim()) {
+                    document.getElementById(errorId).innerText = message;
+                    valid = false;
+                }
+            });
+
+            const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+            const dateValue = document.getElementById('event_date').value;
+            if (dateValue && !dateRegex.test(dateValue)) {
+                document.getElementById('eventDateError').innerText = 'Must be DD/MM/YYYY format';
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        function generateLicKey() {
+            const genBtn = document.getElementById('genBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const btnText = document.getElementById('btnText');
+            const copyBtn = document.getElementById('copyBtn');
+
+            genBtn.disabled = true;
+            btnText.innerText = '...';
+            spinner.style.display = 'block';
+            copyBtn.disabled = true;
+
+            fetch('/generate-license-key')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.lic_key) {
+                        document.getElementById('lic_key').value = data.lic_key;
+                        copyBtn.disabled = false;
+                    } else {
+                        alert('Failed to generate license key');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error generating license key');
+                })
+                .finally(() => {
+                    genBtn.disabled = false;
+                    btnText.innerText = 'GENERATE';
+                    spinner.style.display = 'none';
+                });
+        }
+
+        function copyLicKey() {
+            const val = document.getElementById('lic_key').value;
+            if (!val) return;
+            navigator.clipboard.writeText(val).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
