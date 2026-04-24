@@ -226,15 +226,27 @@
                             '<div style="flex:1;">' +
                                 '<div class="client-email">' + (req.email || '—') + '</div>' +
                                 '<div class="client-company">🏢 ' + (req.company || 'Personal Account') + '</div>' +
+                                '<div style="font-size:12px; color:var(--text-primary); margin-top:6px; margin-bottom:2px;">' + 
+                                    '🎉 ' + (req.eventName || 'Unnamed Event') + 
+                                '</div>' +
+                                '<div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">' + 
+                                    '📅 ' + (req.eventDate || 'No date set') + 
+                                '</div>' +
                                 '<div class="client-date">Requested on ' + formatDate(req.date) + '</div>' +
                             '</div>' +
                             '<div>' +
                                 '<div class="key-form">' +
                                     '<input type="text" id="key-' + req.id + '" class="key-input" placeholder="XXXX-XXXX-XXXX-XXXX">' +
-                                    '<button class="btn-approve" onclick="approveKey(\'' + req.id + '\', \'' + req.email + '\')">Send to Client</button>' +
+                                    '<button class="btn-approve">Send to Client</button>' +
                                 '</div>' +
                                 '<div class="status-msg" id="msg-' + req.id + '"></div>' +
                             '</div>';
+                        
+                        // Attach handler safely
+                        var approveBtn = card.querySelector('.btn-approve');
+                        approveBtn.onclick = function() {
+                            approveKey(req.id, req.eventName, req.eventDate, req.email);
+                        };
                         listDiv.appendChild(card);
                     });
                 })
@@ -244,7 +256,7 @@
                 });
         }
 
-        function approveKey(docId, clientEmail) {
+        function approveKey(docId, eventName, eventDate, email) {
             var keyInput = document.getElementById('key-' + docId);
             var msgEl    = document.getElementById('msg-' + docId);
             var btn      = keyInput.parentElement.querySelector('.btn-approve');
@@ -264,7 +276,13 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ docId: docId, licenseKey: key })
+                body: JSON.stringify({ 
+                    docId: docId, 
+                    licenseKey: key,
+                    eventName: eventName,
+                    eventDate: eventDate,
+                    email: email
+                })
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {

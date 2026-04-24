@@ -837,7 +837,7 @@
             <h2 style="font-size: 18px; color: var(--text-primary); margin-bottom: 6px;">Create New Event</h2>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Assign a license key to an active user account.</p>
 
-            <form id="create-event-form" onsubmit="createEvent(event)">
+            <form id="create-event-form">
               <div style="margin-bottom: 16px;">
                 <label style="display:block; font-size:12px; font-weight:500; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.6px;">Client Email</label>
                 <input type="email" id="event-email" required placeholder="client@company.com"
@@ -935,213 +935,6 @@
       </div>
   </div>
 
-  <div class="panels-row">
-
-    <div class="panel">
-      <div class="panel-header">
-        <div>
-          <div class="panel-title">Analyses Over Time</div>
-          <div class="panel-sub">Daily count · last 7 days</div>
-        </div>
-        <span class="panel-badge">7 days</span>
-      </div>
-      <div class="chart-area" id="bar-chart"></div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <div>
-          <div class="panel-title">Emotion Distribution</div>
-          <div class="panel-sub">Across all sessions this week</div>
-        </div>
-      </div>
-      <div class="emotion-distribution">
-        <div class="donut-wrap">
-          <svg width="110" height="110" viewBox="0 0 110 110">
-            <circle cx="55" cy="55" r="42" fill="none" stroke="var(--bg-main)" stroke-width="14" />
-            <circle cx="55" cy="55" r="42" fill="none" stroke="#CCD0CF" stroke-width="14" stroke-dasharray="100.5 163.8"
-              stroke-dashoffset="0" stroke-linecap="butt" transform="rotate(-90 55 55)" />
-            <circle cx="55" cy="55" r="42" fill="none" stroke="#9BA8AB" stroke-width="14" stroke-dasharray="58.2 206.1"
-              stroke-dashoffset="-100.5" stroke-linecap="butt" transform="rotate(-90 55 55)" />
-            <circle cx="55" cy="55" r="42" fill="none" stroke="#4A5C6A" stroke-width="14" stroke-dasharray="47.6 216.7"
-              stroke-dashoffset="-158.7" stroke-linecap="butt" transform="rotate(-90 55 55)" />
-            <circle cx="55" cy="55" r="42" fill="none" stroke="#253745" stroke-width="14" stroke-dasharray="31.7 232.6"
-              stroke-dashoffset="-206.3" stroke-linecap="butt" transform="rotate(-90 55 55)" />
-            <circle cx="55" cy="55" r="42" fill="none" stroke="#11212D" stroke-width="14" stroke-dasharray="26.4 237.9"
-              stroke-dashoffset="-238" stroke-linecap="butt" transform="rotate(-90 55 55)" />
-            <text x="55" y="51" text-anchor="middle" font-family="DM Serif Display,serif" font-size="18"
-              fill="var(--text-primary)">38%</text>
-            <text x="55" y="65" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9"
-              fill="var(--text-muted)">Joy</text>
-          </svg>
-        </div>
-        <div class="emo-legend">
-          <div class="emo-legend-row">
-            <div class="emo-legend-left">
-              <div class="emo-dot" style="background:#CCD0CF"></div><span class="emo-legend-name">Joy</span>
-            </div>
-            <div class="emo-legend-bar-track">
-              <div class="emo-legend-bar-fill" style="width:38%;background:#CCD0CF"></div>
-            </div>
-            <span class="emo-legend-val">38%</span>
-          </div>
-          <div class="emo-legend-row">
-            <div class="emo-legend-left">
-              <div class="emo-dot" style="background:#9BA8AB"></div><span class="emo-legend-name">Surprise</span>
-            </div>
-            <div class="emo-legend-bar-track">
-              <div class="emo-legend-bar-fill" style="width:22%;background:#9BA8AB"></div>
-            </div>
-            <span class="emo-legend-val">22%</span>
-          </div>
-          <div class="emo-legend-row">
-            <div class="emo-legend-left">
-              <div class="emo-dot" style="background:#4A5C6A"></div><span class="emo-legend-name">Neutral</span>
-            </div>
-            <div class="emo-legend-bar-track">
-              <div class="emo-legend-bar-fill" style="width:18%;background:#4A5C6A"></div>
-            </div>
-            <span class="emo-legend-val">18%</span>
-          </div>
-          <div class="emo-legend-row">
-            <div class="emo-legend-left">
-              <div class="emo-dot" style="background:#253745"></div><span class="emo-legend-name">Sadness</span>
-            </div>
-            <div class="emo-legend-bar-track">
-              <div class="emo-legend-bar-fill" style="width:12%;background:#253745"></div>
-            </div>
-            <span class="emo-legend-val">12%</span>
-          </div>
-          <div class="emo-legend-row">
-            <div class="emo-legend-left">
-              <div class="emo-dot" style="background:#11212D;border:1px solid var(--border)"></div><span
-                class="emo-legend-name">Anger</span>
-            </div>
-            <div class="emo-legend-bar-track">
-              <div class="emo-legend-bar-fill" style="width:10%;background:#4A5C6A"></div>
-            </div>
-            <span class="emo-legend-val">10%</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panels-row">
-
-    <div class="panel">
-      <div class="panel-header">
-        <div>
-          <div class="panel-title">Recent Sessions</div>
-          <div class="panel-sub">Last 5 analysis sessions</div>
-        </div>
-        <a href="#" style="font-size:12px;color:var(--text-secondary);text-decoration:none;">View all →</a>
-      </div>
-      <table class="sessions-table">
-        <thead>
-          <tr>
-            <th>Session</th>
-            <th>Top Emotion</th>
-            <th>Analyses</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="session-name">UX Study #14</span><br><span
-                style="font-size:11px;color:var(--text-muted)">Apr 17, 2026</span></td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#CCD0CF"></span>Joy 84%</span>
-            </td>
-            <td>1,204</td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#6fcf97"></span>Live</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="session-name">Focus Group B</span><br><span
-                style="font-size:11px;color:var(--text-muted)">Apr 16, 2026</span></td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#9BA8AB"></span>Surprise
-                61%</span></td>
-            <td>3,891</td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="session-name">Ad Creative Test</span><br><span
-                style="font-size:11px;color:var(--text-muted)">Apr 15, 2026</span></td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#CCD0CF"></span>Joy 72%</span>
-            </td>
-            <td>5,430</td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="session-name">Interview Panel</span><br><span
-                style="font-size:11px;color:var(--text-muted)">Apr 14, 2026</span></td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Neutral
-                55%</span></td>
-            <td>870</td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="session-name">Therapy Trial #3</span><br><span
-                style="font-size:11px;color:var(--text-muted)">Apr 13, 2026</span></td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#253745"></span>Sadness
-                48%</span></td>
-            <td>2,110</td>
-            <td><span class="emotion-tag"><span class="status-dot" style="background:#4A5C6A"></span>Done</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <div>
-          <div class="panel-title">Activity</div>
-          <div class="panel-sub">Recent events</div>
-        </div>
-      </div>
-      <div class="activity-feed">
-        <div class="activity-item">
-          <div class="activity-icon">📡</div>
-          <div>
-            <div class="activity-text"><strong>UX Study #14</strong> started a live session</div>
-            <div class="activity-time">2 minutes ago</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">📊</div>
-          <div>
-            <div class="activity-text">Weekly report for <strong>Apr 7–13</strong> is ready</div>
-            <div class="activity-time">1 hour ago</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">✅</div>
-          <div>
-            <div class="activity-text"><strong>Ad Creative Test</strong> completed — 5,430 analyses</div>
-            <div class="activity-time">Yesterday, 4:22 PM</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🔑</div>
-          <div>
-            <div class="activity-text">New API key generated for <strong>Production</strong></div>
-            <div class="activity-time">Apr 15, 2026</div>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon">🧪</div>
-          <div>
-            <div class="activity-text">Model accuracy updated to <strong>97.4%</strong></div>
-            <div class="activity-time">Apr 14, 2026</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
       {% endif %}
     </main>
@@ -1329,10 +1122,16 @@
                             '<div>' +
                                 '<div class="key-form">' +
                                     '<input type="text" id="key-' + req.id + '" class="key-input" placeholder="XXXX-XXXX-XXXX-XXXX">' +
-                                    '<button class="btn-approve" onclick="approveKey(\'' + req.id + '\', \'' + req.email + '\')">Send to Client</button>' +
+                                    '<button class="btn-approve">Send to Client</button>' +
                                 '</div>' +
                                 '<div class="status-msg" id="msg-' + req.id + '"></div>' +
                             '</div>';
+                        
+                        // Attach click handler safely without quoting issues
+                        var approveBtn = card.querySelector('.btn-approve');
+                        approveBtn.onclick = function() {
+                            approveKey(req.id, req.eventName, req.eventDate, req.email);
+                        };
                         
                         // Autofill Create Event form on click
                         card.onclick = function(e) {
@@ -1345,6 +1144,9 @@
                             emailInput.value = req.email || '';
                             nameInput.value = req.eventName || ((req.company && req.company !== 'N/A' && req.company !== 'Personal Account' ? req.company : 'Client') + ' Event');
                             if (dateInput && req.eventDate) dateInput.value = req.eventDate;
+                            
+                            document.getElementById('create-event-form').dataset.requestId = req.id;
+                            document.getElementById('create-event-msg').textContent = '';
                             
                             // Visual flash to show it autofilled
                             emailInput.style.borderColor = 'var(--text-primary)';
@@ -1367,7 +1169,7 @@
                 });
         }
 
-        function approveKey(docId, clientEmail) {
+        function approveKey(docId, eventName, eventDate, email) {
             var keyInput = document.getElementById('key-' + docId);
             var msgEl    = document.getElementById('msg-' + docId);
             var btn      = keyInput.parentElement.querySelector('.btn-approve');
@@ -1387,7 +1189,13 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ docId: docId, licenseKey: key })
+                body: JSON.stringify({ 
+                    docId: docId, 
+                    licenseKey: key,
+                    eventName: eventName,
+                    eventDate: eventDate,
+                    email: email
+                })
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
@@ -1400,6 +1208,17 @@
                     // Refresh count
                     var current = parseInt(countBadge.textContent) || 1;
                     countBadge.textContent = Math.max(0, current - 1);
+
+                    // EASE OF USE: Reset the "Create New Event" form fields
+                    var createForm = document.getElementById('create-event-form');
+                    if (createForm) {
+                        createForm.reset();
+                        delete createForm.dataset.requestId;
+                        var licInput = document.getElementById('event-license-key');
+                        if (licInput) licInput.style.borderColor = 'var(--border)';
+                        var createMsg = document.getElementById('create-event-msg');
+                        if (createMsg) createMsg.textContent = '';
+                    }
                 } else {
                     btn.textContent = 'Send to Client';
                     btn.disabled = false;
@@ -1444,10 +1263,56 @@
                 });
         };
 
-        window.createEvent = function(e) {
-            e.preventDefault();
-            alert("Create event functionality to be implemented next.");
-        };
+        var createEventForm = document.getElementById('create-event-form');
+        if (createEventForm) {
+            createEventForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var email = document.getElementById('event-email').value.trim();
+                var name = document.getElementById('event-name').value.trim();
+                var date = document.getElementById('event-date').value.trim();
+                var key = document.getElementById('event-license-key').value.trim();
+                var msgEl = document.getElementById('create-event-msg');
+                
+                if (!email || !name || !date) {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Please fill out all required fields.';
+                    return;
+                }
+                
+                if (!key) {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Please click GENERATE to create a license key.';
+                    return;
+                }
+                
+                var reqId = document.getElementById('create-event-form').dataset.requestId;
+                if (!reqId) {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Please select a pending request from the left list first.';
+                    return;
+                }
+                
+                var targetInput = document.getElementById('key-' + reqId);
+                if (targetInput) {
+                    targetInput.value = key;
+                    msgEl.style.color = '#6fcf97';
+                    msgEl.textContent = 'License key populated! Click "Send to Client" on the request card.';
+                    
+                    // Highlight the card so the user knows where to look
+                    var card = document.getElementById('card-' + reqId);
+                    if (card) {
+                        card.style.borderColor = 'var(--text-primary)';
+                        setTimeout(function() {
+                            card.style.borderColor = 'var(--border)';
+                        }, 1000);
+                    }
+                } else {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Could not find the corresponding request card.';
+                }
+            });
+        }
 
         // Load on page ready
         loadRequests();

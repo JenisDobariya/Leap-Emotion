@@ -310,25 +310,10 @@ def admin_pending_requests():
                 event_name = fields.get("eventName", {}).get("stringValue", "")
                 event_date = fields.get("eventDate", {}).get("stringValue", "")
                 
-                # FALLBACK: If company is missing or empty, fetch from Users collection
+                # OPTIMIZATION: Skip fallback fetch for now to prevent hanging.
+                # Use the company in the request or default to N/A.
                 if not company or company == "N/A":
-                    try:
-                        u_query = {
-                            "structuredQuery": {
-                                "from": [{"collectionId": "Users"}],
-                                "where": {"fieldFilter": {"field": {"fieldPath": "email"}, "op": "EQUAL", "value": {"stringValue": req_email}}},
-                                "limit": 1
-                            }
-                        }
-                        u_res = _call_firestore("POST", ":runQuery", u_query)
-                        u_results = u_res.json()
-                        if u_results and isinstance(u_results, list) and "document" in u_results[0]:
-                            company = u_results[0]["document"].get("fields", {}).get("company", {}).get("stringValue", "N/A")
-                        else:
-                            company = "Personal Account" # Default if no user record found
-                    except Exception as e:
-                        print("Fallback company fetch error:", e)
-                        company = "N/A"
+                    company = "Personal Account"
 
                 requests_list.append({
                     "id":        doc_id,
@@ -340,7 +325,7 @@ def admin_pending_requests():
                 })
                 
         # Sort manually to avoid composite index failure
-        requests_list.sort(key=lambda x: x["date"], reverse=True)
+        requests_list.sort(key=lambda x: x["date"] or "", reverse=True)
         return jsonify({"requests": requests_list})
         
     except Exception as e:
@@ -357,6 +342,9 @@ def admin_approve_key():
     data = request.get_json()
     doc_id    = data.get("docId", "").strip()
     license_key = data.get("licenseKey", "").strip()
+    event_name = data.get("eventName", "Unnamed Event").strip()
+    event_date = data.get("eventDate", "").strip()
+    client_email = data.get("email", "").strip()
 
     if not doc_id or not license_key:
         return jsonify({"error": "docId and licenseKey are required"}), 400
@@ -378,6 +366,39 @@ def admin_approve_key():
     try:
         res = _call_firestore("PATCH", url_suffix, update_payload)
         if res.status_code in (200, 201):
+            
+            # Save to Realtime Database as well
+            try:
+                base_db_url = FIREBASE_DB_URL.replace(".json", "")
+                rtdb_url = f"{base_db_url}/Events/{license_key}.json"
+                
+                # Format lic_key as int if possible
+                lic_key_val = int(license_key) if license_key.isdigit() else license_key
+                handling_person = session.get("user", "Admin").split("@")[0].capitalize()
+                
+                # Format event_date from YYYY-MM-DD to DD/MM/YYYY if possible
+                formatted_date = event_date
+                if "-" in event_date and len(event_date) == 10:
+                    try:
+                        y, m, d = event_date.split("-")
+                        formatted_date = f"{d}/{m}/{y}"
+                    except:
+                        pass
+                
+                event_payload = {
+                    "event_date": formatted_date,
+                    "event_end_time_to": "23:59",
+                    "event_name": event_name,
+                    "event_start_time_": "00:00",
+                    "handling_person_name": handling_person,
+                    "lic_key": lic_key_val,
+                    "email": client_email
+                }
+                
+                requests.put(rtdb_url, json=event_payload, params={"auth": session.get("token")}, timeout=10)
+            except Exception as rtdb_e:
+                print(f"Failed to save to RTDB: {rtdb_e}")
+                
             return jsonify({"status": "success"})
             
         print(f"admin_approve fail [{res.status_code}]: {res.text}")
@@ -561,16 +582,26 @@ def add_event():
 def generate_license_key():
     token = session.get("token")
 
-    while True:
+    max_attempts = 10
+    attempts = 0
+    while attempts < max_attempts:
+        attempts += 1
         # Generate 6-digit unique key
         lic_key = random.randint(10000, 999999999)
 
         # Check if key exists in Firebase
         check_url = f"https://humananalysisv0-default-rtdb.firebaseio.com/Events/{lic_key}.json"
         response = requests.get(check_url, params={"auth": token})
+        
+        # If there's an error (like 401 Unauthorized), we must break out to avoid an infinite loop!
+        if response.status_code != 200:
+            print(f"Error checking RTDB: {response.text}")
+            return jsonify({"error": "Failed to verify key uniqueness. Firebase RTDB access denied."}), 500
 
         if response.json() is None:
             return jsonify({"lic_key": lic_key})
+            
+    return jsonify({"error": "Could not generate a unique key after 10 attempts."}), 500
 
 
 # ----------------------
@@ -590,9 +621,9 @@ def _call_firestore(method, url_suffix, json_payload=None):
     headers = {"Authorization": f"Bearer {token}"} if token else {}
     
     def do_req():
-        if method == "POST": return requests.post(url, json=json_payload, headers=headers)
-        if method == "PATCH": return requests.patch(url, json=json_payload, headers=headers)
-        if method == "GET": return requests.get(url, headers=headers)
+        if method == "POST": return requests.post(url, json=json_payload, headers=headers, timeout=10)
+        if method == "PATCH": return requests.patch(url, json=json_payload, headers=headers, timeout=10)
+        if method == "GET": return requests.get(url, headers=headers, timeout=10)
 
     res = do_req()
     
@@ -605,7 +636,7 @@ def _call_firestore(method, url_suffix, json_payload=None):
             refresh_res = requests.post(refresh_url, data={
                 "grant_type": "refresh_token",
                 "refresh_token": refresh_token
-            })
+            }, timeout=10)
             r_data = refresh_res.json()
             if "id_token" in r_data:
                 # Successfully refreshed
