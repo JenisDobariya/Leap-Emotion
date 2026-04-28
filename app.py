@@ -520,10 +520,23 @@ def dashboard_analysis():
     # If DB requires auth
     params = {"auth": token}
 
-    response = requests.get(FIREBASE_DB_URL, params=params)
-    data = response.json()
+    response = requests.get(FIREBASE_DB_URL, params=params, timeout=10)
+    data = response.json() or {}
 
-    return render_template("dashboard_analysis.html", user=session["user"], data=data)
+    # Filter events based on current user email (Admins see ALL)
+    user_email = session.get("user")
+    is_admin = is_admin_user()
+    events = data.get("Events", {})
+    filtered_events = {}
+    
+    if isinstance(events, dict):
+        for eid, edata in events.items():
+            if is_admin or edata.get("email") == user_email:
+                filtered_events[eid] = edata
+                
+    data["Events"] = filtered_events
+
+    return render_template("dashboard_analysis.html", user=user_email, data=data)
 
 
 @app.route("/api/data")
@@ -533,10 +546,24 @@ def get_realtime_data():
 
     response = requests.get(
         FIREBASE_DB_URL,
-        params={"auth": token}
+        params={"auth": token},
+        timeout=10
     )
 
-    data = response.json()
+    data = response.json() or {}
+    
+    # Filter events based on current user email (Admins see ALL)
+    user_email = session.get("user")
+    is_admin = is_admin_user()
+    events = data.get("Events", {})
+    filtered_events = {}
+    
+    if isinstance(events, dict):
+        for eid, edata in events.items():
+            if is_admin or edata.get("email") == user_email:
+                filtered_events[eid] = edata
+                
+    data["Events"] = filtered_events
     return data
 
 @app.route("/add-event", methods=["GET", "POST"])
@@ -561,6 +588,7 @@ def add_event():
             "event_end_time_to": end_time,
             "handling_person_name": handler,
             "lic_key": int(lic_key),
+            "email": session.get("user"),
             "data": {}
         }
 
