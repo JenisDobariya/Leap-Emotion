@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Leap Emotion</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+  <script src="{{ url_for('static', filename='auth.js') }}?v=6"></script>
+  <style>
+    body {
+      background: var(--bg-main);
+    }
+
+    /* ── Layout ── */
+    .dash-wrap {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 50px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0 24px;
+      position: fixed;
+      top: 50px;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      padding: 0 16px;
+      margin-bottom: 28px;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .sidebar-link:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .sidebar-link.active {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .sidebar-link svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .sidebar-link.active svg {
+      opacity: 1;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 0 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--bg-hover);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 13px;
+      color: var(--text-primary);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-plan {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Main Content ── */
+    .dash-main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 40px 40px 60px;
+      max-width: calc(100% - 240px);
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .page-subtitle {
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-sm {
+      padding: 9px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-sm-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .btn-sm-ghost:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    .btn-sm-primary {
+      background: var(--text-primary);
+      border: 1px solid var(--text-primary);
+      color: var(--text-inverse);
+    }
+
+    .btn-sm-primary:hover {
+      background: var(--text-secondary);
+      border-color: var(--text-secondary);
+    }
+
+    /* ── Stat Cards ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      transition: box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .stat-card-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-card-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-card-change {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .stat-card-change.up {
+      color: #6fcf97;
+    }
+
+    .stat-card-change.down {
+      color: #eb5757;
+    }
+
+    /* ── Grid Panels ── */
+    .panels-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .panel-full {
+      grid-column: 1 / -1;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .panel-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .panel-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Chart bars (CSS only) ── */
+    .chart-area {
+      height: 160px;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding-top: 8px;
+    }
+
+    .chart-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chart-bar-wrap {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .chart-bar {
+      width: 70%;
+      border-radius: 6px 6px 0 0;
+      background: var(--border);
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    .chart-bar.highlight {
+      background: var(--text-secondary);
+    }
+
+    .chart-bar:hover {
+      background: var(--text-primary);
+    }
+
+    .chart-bar-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ── Emotion Donut (SVG rings) ── */
+    .emotion-distribution {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .donut-wrap {
+      flex-shrink: 0;
+    }
+
+    .emo-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .emo-legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .emo-legend-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .emo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .emo-legend-name {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .emo-legend-val {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .emo-legend-bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--bg-main);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .emo-legend-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+    }
+
+    /* ── Sessions Table ── */
+    .sessions-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .sessions-table th {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 0 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sessions-table td {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+
+    .sessions-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .session-name {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .emotion-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ── Activity feed ── */
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    .activity-text {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .activity-text strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Live indicator ── */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #6fcf97;
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #6fcf97;
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+
+    /* ── Admin Panel ── */
+    .request-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      transition: box-shadow 0.2s;
+    }
+    .request-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.3); border-color: var(--text-secondary); cursor: pointer; }
+    .client-email { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; display: block; }
+    .client-company { font-size: 13px; color: var(--text-secondary); font-weight: 500; margin-bottom: 3px; display: block; }
+    .client-date { font-size: 11px; color: var(--text-muted); display: block; }
+    .key-form { display: flex; gap: 10px; flex-wrap: wrap; }
+    .key-input {
+      padding: 10px 14px; border-radius: 100px; border: 1px solid var(--border);
+      background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif;
+      font-size: 13px; outline: none; min-width: 220px;
+    }
+    .key-input:focus { border-color: var(--text-secondary); }
+    .btn-approve {
+      padding: 10px 20px; border-radius: 100px;
+      background: var(--text-primary); color: var(--text-inverse);
+      border: none; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
+    }
+    .btn-approve:hover { opacity: 0.8; }
+    .btn-approve:disabled { opacity: 0.4; cursor: not-allowed; }
+    .status-msg { font-size: 12px; margin-top: 8px; }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 15px; }
+    .loading-state { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 14px; padding: 20px 0; }
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--text-secondary);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Setup Guide Animations ── */
+    .setup-card {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.55s cubic-bezier(.22,1,.36,1), transform 0.55s cubic-bezier(.22,1,.36,1),
+                  box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .setup-card.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .setup-card:hover {
+      box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+      border-color: var(--text-secondary) !important;
+    }
+    .setup-card.in-view:hover {
+      transform: translateY(-6px);
+    }
+    @keyframes blink-cursor {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    .term-cursor {
+      display: inline-block;
+      width: 6px; height: 11px;
+      background: #7ee787;
+      border-radius: 1px;
+      animation: blink-cursor 1s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+    @keyframes live-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+      50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+    }
+    .live-indicator {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: live-glow 1.5s ease-in-out infinite;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    @keyframes guide-header-in {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .setup-guide-header {
+      animation: guide-header-in 0.5s ease both;
+    }
+    /* ── Click-hint arrows in mockups ── */
+    @keyframes hint-bob {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-5px) scale(1.04); }
+    }
+    @keyframes hint-ring {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.55); }
+      60%       { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+    }
+    .click-hint {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #f59e0b; color: #1a0e00;
+      font-size: 9px; font-weight: 700; padding: 2px 8px;
+      border-radius: 20px; white-space: nowrap;
+      animation: hint-bob 1.15s ease-in-out infinite, hint-ring 1.15s ease-in-out infinite;
+    }
+    .click-hint::after { content: ' ▼'; font-size: 7px; }
+    /* ── Step connector dots ── */
+    @keyframes dot-travel {
+      0%   { transform: translateX(0);   opacity: 1; }
+      80%  { transform: translateX(24px); opacity: 0; }
+      100% { transform: translateX(24px); opacity: 0; }
+    }
+    .step-dot { display:inline-block; width:5px; height:5px; border-radius:50%;
+      background: var(--text-secondary); animation: dot-travel 1.4s ease-in-out infinite; }
+    .step-dot:nth-child(2){ animation-delay:.25s; }
+    .step-dot:nth-child(3){ animation-delay:.5s; }
+    .badge-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--bg-hover); border: 1px solid var(--border); border-radius: 100px;
+      font-size: 12px; padding: 2px 10px; color: var(--text-secondary); margin-left: 10px; vertical-align: middle;
+    }
+    .approved-card { opacity: 0.5; pointer-events: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+
+      .dash-main {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 24px 20px;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .panels-row {
+        grid-template-columns: 1fr;
+      }
+
+      .desktop-only-divider {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hamburger { display: inline-flex !important; }
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+      }
+      .sidebar.show {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+      }
+      .dash-main {
+        margin-left: 0 !important;
+        max-width: 100% !important;
+        padding: 24px 20px 60px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .flash-msg-card {
+      padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; text-align: center;
+    }
+    .flash-danger {
+      background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+    }
+    .flash-success {
+      background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #a7f3d0;
+    }
+  </style>
+</head>
+
+<body class="public-page">
+
+  <nav id="main-nav">
+    <div style="display:flex; align-items:center; gap: 12px;">
+      <button class="hamburger" id="mobile-menu-btn" style="display:none; background:none; border:none; color:var(--text-primary); cursor:pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <a href="{{ url_for('index') }}" class="logo">
+        <span class="logo-dot"></span>
+        Leap Emotion
+      </a>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <span class="live-badge"><span class="live-dot"></span> Live</span>
+      <div class="nav-right">
+        <a href="{{ url_for('dashboard') }}" class="nav-avatar" title="My Account" id="nav-person-btn"
+          style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#253745;color:#CCD0CF;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;text-decoration:none;border:1px solid #4A5C6A;transition:border-color 0.2s;"
+          onmouseover="this.style.borderColor='#9BA8AB'" onmouseout="this.style.borderColor='#4A5C6A'">
+          {{ (user_data.firstName[0] | upper) if (user_data and user_data.firstName) else (user[0] | upper if user else 'U') }}
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dash-wrap">
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <a class="sidebar-link {% if view == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          Overview
+        </a>
+        <a class="sidebar-link {% if view == 'analytics' %}active{% endif %}" href="{{ url_for('dashboard', view='analytics') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M3 3h18v18H3z" />
+            <path d="M3 9h18M9 21V9" />
+          </svg>
+          Analytics
+        </a>
+        {% if is_admin %}
+        <a class="sidebar-link {% if view == 'admin' %}active{% endif %}" href="{{ url_for('dashboard', view='admin') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          Admin Panel
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Account</div>
+        <a class="sidebar-link {% if view == 'settings' %}active{% endif %}" href="{{ url_for('dashboard', view='settings') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </a>
+        <a class="sidebar-link" href="{{ url_for('contact') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          Support
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Connect</div>
+        <div style="display: flex; gap: 12px; padding: 0 12px; margin-top: 8px;">
+          <a href="https://linkedin.com/company/leap-emotion" target="_blank" style="color: var(--text-secondary); transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href="https://instagram.com/leapemotion" target="_blank" style="color: var(--text-secondary); transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://twitter.com/leapemotion" target="_blank" style="color: var(--text-secondary); transition: color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733-16z M4 20l6.768-6.768 M13.232 10.768L20 4"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="user-chip">
+          <div class="user-avatar" id="sidebar-avatar">
+            {{ user_data.firstName[0] | upper if user_data and user_data.firstName else (user[0] | upper if user else "U") }}
+          </div>
+          <div>
+            <div class="user-name" id="sidebar-name">{{ user_data.firstName if user_data and user_data.firstName else (user.split('@')[0] if user else "User") }}</div>
+            <div class="user-plan">Pro Plan · Beta</div>
+          </div>
+        </div>
+        <a href="/logout" class="sidebar-link" style="margin-top:8px; color:#eb5757; text-decoration:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eb5757" stroke-width="1.8">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16,17 21,12 16,7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign out
+        </a>
+      </div>
+    </aside>
+
+    <main class="dash-main" {% if view == 'analytics' %}style="padding: 0; max-width: calc(100vw - 240px);"{% endif %}>
+
+      {% if view != 'analytics' %}
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">
+            {% if view == 'settings' %}Account Settings
+            {% elif view == 'admin' %}Admin Panel
+            {% else %}Overview{% endif %}
+          </h1>
+          <p class="page-subtitle">
+            {% if view == 'settings' %}
+              Manage your account details and preferences.
+            {% elif view == 'admin' %}
+              Manage global platform settings and pending license keys.
+            {% else %}
+              Welcome back, <span id="user-email-header">{{ user }}</span> · Today, <span id="today-date"></span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-msg-card {% if category == 'danger' %}flash-danger{% else %}flash-success{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% if view == 'settings' %}
+        <!-- Settings View Content -->
+        <div class="panel" style="max-width: 600px;">
+          <form method="POST" action="{{ url_for('settings') }}">
+            <div style="margin-bottom: 32px;">
+              <div style="font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px;">Account Information</div>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">View your account details.</p>
+
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px;">Work Email</label>
+                <input type="email" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-hover); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; cursor: not-allowed;" value="{{ user_data.email }}" readonly>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Email cannot be changed.</p>
+              </div>
+
+              <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                  <label for="firstName" style="display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px;">First Name</label>
+                  <input type="text" id="firstName" name="firstName" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-hover); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; cursor: not-allowed;" value="{{ user_data.firstName or '' }}" placeholder="Jane" readonly>
+                </div>
+                <div style="flex: 1;">
+                  <label for="lastName" style="display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px;">Last Name</label>
+                  <input type="text" id="lastName" name="lastName" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-hover); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; cursor: not-allowed;" value="{{ user_data.lastName or '' }}" placeholder="Doe" readonly>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label for="company" style="display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px;">Company Name</label>
+                <input type="text" id="company" name="company" style="width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-hover); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; cursor: not-allowed;" value="{{ user_data.company or '' }}" placeholder="Acme Inc." readonly>
+              </div>
+            </div>
+
+            <!-- Save button removed as fields are read-only -->
+          </form>
+        </div>
+      {% elif view == 'analytics' %}
+        <!-- Analytics View Content (Embedded Legacy View) -->
+        <div style="width: 100%; height: calc(100vh - 50px); border: none; background: transparent; overflow: hidden;">
+          <iframe src="{{ url_for('dashboard_analysis') }}?embedded=true" style="width: 100%; height: 100%; border: none;" allowtransparency="true"></iframe>
+        </div>
+      {% elif view == 'admin' and is_admin %}
+        <!-- Admin View Content — Two Column Layout -->
+        <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; max-width: 1200px;">
+
+          <!-- LEFT: License Requests List -->
+          <div class="panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+              <div>
+                <h2 style="font-size: 18px; color: var(--text-primary); margin-bottom: 4px;">License Requests</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0;">Approve pending key requests from clients.</p>
+              </div>
+              <span class="badge-count" id="count-badge">—</span>
+            </div>
+            <div id="requests-list">
+              <div class="loading-state">
+                <div class="spinner"></div>
+                Loading requests…
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Create Event Form -->
+          <div class="panel" style="position: sticky; top: 88px;">
+            <h2 style="font-size: 18px; color: var(--text-primary); margin-bottom: 6px;">Create New Event</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Assign a license key to an active user account.</p>
+
+            <form id="create-event-form">
+              <div style="margin-bottom: 16px;">
+                <label style="display:block; font-size:12px; font-weight:500; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.6px;">Client Email</label>
+                <input type="email" id="event-email" required placeholder="client@company.com"
+                  style="width:100%; padding:11px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-main); color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:14px; outline:none; transition: border-color 0.2s;"
+                  onfocus="this.style.borderColor='var(--text-secondary)'" onblur="this.style.borderColor='var(--border)'">
+              </div>
+
+              <div style="margin-bottom: 16px;">
+                <label style="display:block; font-size:12px; font-weight:500; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.6px;">License Key</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="text" id="event-license-key" required readonly placeholder="Click Generate →"
+                    style="flex:1; padding:11px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-main); color:var(--text-primary); font-family:'Space Mono',monospace; font-size:13px; outline:none; cursor:default;">
+                  <button type="button" id="genBtn" onclick="generateAdminLicKey()"
+                    style="padding:0 16px; border-radius:12px; border:1px solid var(--text-secondary); background:transparent; color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap;">
+                    GENERATE
+                  </button>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 16px;">
+                <label style="display:block; font-size:12px; font-weight:500; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.6px;">Event Name</label>
+                <input type="text" id="event-name" required placeholder="e.g. Annual Conference 2026"
+                  style="width:100%; padding:11px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-main); color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:14px; outline:none; transition: border-color 0.2s;"
+                  onfocus="this.style.borderColor='var(--text-secondary)'" onblur="this.style.borderColor='var(--border)'">
+              </div>
+
+              <div style="margin-bottom: 24px;">
+                <label style="display:block; font-size:12px; font-weight:500; color:var(--text-secondary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.6px;">Event Date</label>
+                <input type="date" id="event-date" required
+                  style="width:100%; padding:11px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-main); color:var(--text-primary); font-family:'DM Sans',sans-serif; font-size:14px; outline:none; transition: border-color 0.2s; color-scheme: dark;"
+                  onfocus="this.style.borderColor='var(--text-secondary)'" onblur="this.style.borderColor='var(--border)'">
+              </div>
+
+              <button type="submit" id="create-event-btn"
+                style="width:100%; padding:13px; border-radius:12px; background:var(--text-primary); color:var(--text-inverse); border:none; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition: opacity 0.2s, transform 0.2s;"
+                onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                ✦ Create Event
+              </button>
+              <div id="create-event-msg" style="font-size:13px; margin-top:12px; text-align:center;"></div>
+            </form>
+          </div>
+
+        </div>
+
+      {% else %}
+        <!-- Dashboard View Content -->
+        <div class="panel panel-full" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
+
+        <div style="flex: 1; min-width: 250px;">
+          <div class="panel-title">1. Download Desktop Application</div>
+          <div class="panel-sub">Install the emotion detection engine on your local mini PC.</div>
+          <a href="https://drive.google.com/file/d/1CtL3eOz1JnjmImU0F7yw4OYASshu0z0F/view?usp=sharing" target="_blank"
+            class="btn-sm btn-sm-ghost" style="margin-top: 14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download App
+          </a>
+        </div>
+
+        <div style="width: 1px; height: 60px; background: var(--border); display: block;" class="desktop-only-divider">
+        </div>
+
+        <!-- <div style="flex: 1.5; min-width: 300px;">
+          <div class="panel-title">2. License Key Activation</div>
+          <div class="panel-sub">Request a key to activate your camera, or enter your assigned key below.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+            <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX"
+              style="flex:1; min-width: 180px; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;">
+            <button id="activate-key-btn" class="btn-sm btn-sm-primary">Save Key</button>
+            <button id="request-key-btn" class="btn-sm btn-sm-ghost">Request Key</button>
+          </div>
+          <div id="license-status" style="font-size: 11.5px; margin-top: 10px; color: var(--text-muted);"></div>
+        </div> -->
+
+        <div style="flex: 1.5; min-width: 300px;">
+          <div class="panel-title">2. License Key Activation</div>
+          <div class="panel-sub">Enter event details to request a camera activation key.</div>
+          <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+            <input type="text" id="user-req-event-name" required placeholder="Event Name"
+              style="flex:1; min-width: 140px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;">
+            <input type="date" id="user-req-event-date" required
+              style="flex:1; min-width: 130px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; color-scheme: dark;">
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+            <input type="text" id="license-input" placeholder="Your key will appear here once approved" readonly
+              style="flex:1; min-width: 180px; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; cursor: default;">
+            <button id="request-key-btn" class="btn-sm btn-sm-ghost" disabled>Loading...</button>
+          </div>
+          <div id="license-status" style="font-size: 11.5px; margin-top: 10px; color: var(--text-muted);"></div>
+        </div>
+
+        </div>
+
+
+        <!-- ── Setup Guide (inside Overview else-block) ── -->
+        <div class="panel panel-full" style="margin-top: 24px;">
+          <div class="panel-header setup-guide-header" style="margin-bottom: 24px;">
+            <div>
+              <div class="panel-title" style="font-size: 16px;">🚀 Getting Started — Setup Guide</div>
+              <div class="panel-sub" style="margin-top: 4px;">Follow these steps to get Leap Emotion running at your event.</div>
+            </div>
+            <span class="panel-badge">5 Steps</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+            <!-- STEP 1: Download & Install -->
+            <div class="setup-card" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+              <div style="padding: 20px 22px 16px; position: relative;">
+                <div style="position: absolute; top: 14px; right: 16px; font-size: 36px; font-weight: 700; color: var(--border); font-family: 'DM Serif Display', serif; line-height: 1; opacity: 0.6;">01</div>
+                <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Step 1</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">⬇️ Download &amp; Install</div>
+                <ol style="margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--text-secondary); line-height: 2;">
+                  <li>Click <strong style="color: var(--text-primary);">Download App</strong> from the panel above.</li>
+                  <li>Run the <code style="background: var(--bg-hover); padding: 1px 5px; border-radius: 4px; font-size: 11px;">.exe</code> installer and follow prompts.</li>
+                  <li>Launch <strong style="color: var(--text-primary);">Leap Emotion</strong> from your desktop.</li>
+                </ol>
+              </div>
+              <!-- Visual: installer hint -->
+              <div style="margin: 0 16px 16px; background: #0d1117; border: 1px solid #30363d; border-radius: 10px; padding: 14px 16px; font-family: monospace; font-size: 11px; color: #7ee787;">
+                <div style="color: #8b949e; margin-bottom: 6px;">📦 LeapEmotionSetup.exe</div>
+                <div style="margin-bottom:5px;"><span class="click-hint">Run this file</span></div>
+                <div>▶ Installation complete</div>
+                <div style="color: #8b949e;">✔ Shortcut created on Desktop</div>
+              </div>
+              <div style="padding: 0 16px 16px; font-size: 11.5px; color: #6fcf97;">✅ Windows 10 / 11 (64-bit) required</div>
+            </div>
+
+            <!-- STEP 2: License Key -->
+            <div class="setup-card" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+              <div style="padding: 20px 22px 16px; position: relative;">
+                <div style="position: absolute; top: 14px; right: 16px; font-size: 36px; font-weight: 700; color: var(--border); font-family: 'DM Serif Display', serif; line-height: 1; opacity: 0.6;">02</div>
+                <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Step 2</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">🔑 Get Your License Key</div>
+                <ol style="margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--text-secondary); line-height: 2;">
+                  <li>Fill in <strong style="color: var(--text-primary);">Event Name</strong> &amp; <strong style="color: var(--text-primary);">Date</strong> above.</li>
+                  <li>Click <strong style="color: var(--text-primary);">Request Key</strong> — we review &amp; approve.</li>
+                  <li>Your key appears on this page when ready.</li>
+                  <li>Copy it: <code style="background: var(--bg-hover); padding: 1px 5px; border-radius: 4px; font-size: 11px; letter-spacing: 1px;">XXXX-XXXX-XXXX-XXXX</code></li>
+                </ol>
+              </div>
+              <!-- Visual: Auth screen mockup -->
+              <div style="margin: 0 16px 16px; background: #f0f4f8; border-radius: 10px; padding: 16px; text-align: center;">
+                <div style="font-size: 22px; margin-bottom: 4px;">🛡️</div>
+                <div style="font-size: 12px; font-weight: 700; color: #1a2332; margin-bottom: 2px;">Authentication</div>
+                <div style="font-size: 10px; color: #6b7280; margin-bottom: 10px;">Please enter your license key to continue.</div>
+                <div style="background: white; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 10px; font-size: 10px; color: #9ca3af; text-align: left; margin-bottom: 8px;">e.g. XXXX-XXXX-XXXX-XXXX</div>
+                <div style="margin-bottom:5px;"><span class="click-hint">Click to verify</span></div>
+                <div style="background: #3b82f6; border-radius: 8px; padding: 7px; font-size: 10px; font-weight: 600; color: white;">Verify License</div>
+              </div>
+              <div style="padding: 0 16px 16px; font-size: 11.5px; color: #fca5a5;">⚠️ One key per event session only</div>
+            </div>
+
+            <!-- STEP 3: Run Python Script -->
+            <div class="setup-card" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+              <div style="padding: 20px 22px 16px; position: relative;">
+                <div style="position: absolute; top: 14px; right: 16px; font-size: 36px; font-weight: 700; color: var(--border); font-family: 'DM Serif Display', serif; line-height: 1; opacity: 0.6;">03</div>
+                <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Step 3</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">⚙️ Run the Python Script</div>
+                <ol style="margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--text-secondary); line-height: 2;">
+                  <li>In the app, click <strong style="color: var(--text-primary);">Run Python Script</strong>.</li>
+                  <li>Wait for AI models to load — takes ~30 sec.</li>
+                  <li>Once loaded, <strong style="color: var(--text-primary);">Start Event Camera</strong> button appears.</li>
+                </ol>
+              </div>
+              <!-- Visual: StartPython mockup -->
+              <div style="margin: 0 16px 16px; background: #e8ecf0; border-radius: 10px; padding: 14px 16px; text-align: center;">
+                <div style="font-size: 11px; font-weight: 700; color: #1a2332; margin-bottom: 10px;">Python Background Runner</div>
+                <div style="margin-bottom:5px;"><span class="click-hint">Click to start</span></div>
+                <div style="background: #22c55e; border-radius: 8px; padding: 7px 14px; font-size: 10px; font-weight: 600; color: white; display: inline-block; margin-bottom: 6px;">▶ Run Python Script</div>
+                <div style="background: #0d1117; border-radius: 6px; padding: 8px 10px; font-family: monospace; font-size: 9px; color: #7ee787; text-align: left; margin-top: 6px;">
+                  <div style="color: #8b949e;">[OK] InsightFace loaded</div>
+                  <div style="color: #8b949e;">[OK] DeepFace model loaded</div>
+                  <div>[OK] ALL MODELS LOADED<span class="term-cursor"></span></div>
+                </div>
+              </div>
+              <div style="padding: 0 16px 16px; font-size: 11.5px; color: #6fcf97;">✅ Keep this window open during the event</div>
+            </div>
+
+            <!-- STEP 4: Start Camera -->
+            <div class="setup-card" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+              <div style="padding: 20px 22px 16px; position: relative;">
+                <div style="position: absolute; top: 14px; right: 16px; font-size: 36px; font-weight: 700; color: var(--border); font-family: 'DM Serif Display', serif; line-height: 1; opacity: 0.6;">04</div>
+                <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Step 4</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">📸 Start the Event Camera</div>
+                <ol style="margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--text-secondary); line-height: 2;">
+                  <li>Click <strong style="color: var(--text-primary);">Start Event Camera</strong> in the launcher.</li>
+                  <li>The <strong style="color: var(--text-primary);">Event Analytics Pro</strong> window opens.</li>
+                  <li>Click <strong style="color: var(--text-primary);">Start Camera + Event</strong> to go live.</li>
+                  <li>Monitor emotions in real-time from this dashboard.</li>
+                </ol>
+              </div>
+              <!-- Visual: Event Analytics mockup -->
+              <div style="margin: 0 16px 16px; background: #111827; border-radius: 10px; padding: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div style="font-size: 9px; font-weight: 700; color: #e5e7eb;">Event Analytics Pro</div>
+                  <div style="display: flex; gap: 5px; align-items:center;">
+                    <span class="click-hint" style="animation-delay:.3s;">Click</span>
+                    <div style="background: #22c55e; border-radius: 4px; padding: 3px 7px; font-size: 8px; color: white; font-weight: 600;">▶ Start Camera</div>
+                    <div style="background: #ef4444; border-radius: 4px; padding: 3px 7px; font-size: 8px; color: white; font-weight: 600;">■ Stop</div>
+                  </div>
+                </div>
+                <div style="background: #1f2937; border-radius: 6px; padding: 16px; text-align: center; border: 1px solid #374151;">
+                  <div style="font-size: 16px; margin-bottom: 4px; opacity: 0.5;">📷</div>
+                  <div style="font-size: 9px; color: #9ca3af;"><span class="live-indicator"></span>Camera Feed · LIVE</div>
+                </div>
+              </div>
+              <div style="padding: 0 16px 16px; font-size: 11.5px; color: #6fcf97;">🎉 You're live! Emotions tracked in real-time.</div>
+            </div>
+
+            <!-- STEP 5: Open Analytics -->
+            <div class="setup-card" style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;">
+              <div style="padding: 20px 22px 16px; position: relative;">
+                <div style="position: absolute; top: 14px; right: 16px; font-size: 36px; font-weight: 700; color: var(--border); font-family: 'DM Serif Display', serif; line-height: 1; opacity: 0.6;">05</div>
+                <div style="font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Step 5</div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">📊 Open Analytics &amp; Review</div>
+                <ol style="margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--text-secondary); line-height: 2;">
+                  <li>Return to your <strong style="color:var(--text-primary);">Leap Emotion Dashboard</strong>.</li>
+                  <li>Click <strong style="color:var(--text-primary);">Analytics</strong> in the left sidebar.</li>
+                  <li>Select your event from the dropdown.</li>
+                  <li>View live emotion charts, scores &amp; attendance data.</li>
+                </ol>
+              </div>
+              <!-- Visual: mini dashboard mockup -->
+              <div style="margin: 0 16px 16px; background: #0f1117; border-radius: 10px; padding: 10px; display: flex; gap: 8px;">
+                <!-- Sidebar -->
+                <div style="width: 72px; flex-shrink: 0; border-right: 1px solid #21262d; padding-right: 8px;">
+                  <div style="font-size: 7px; color: #484f58; margin-bottom: 5px; letter-spacing: .6px; font-weight: 700;">MAIN</div>
+                  <div style="padding: 3px 5px; border-radius: 4px; font-size: 7.5px; color: #6e7681; margin-bottom: 3px;">⬛ Overview</div>
+                  <div style="padding: 3px 5px; border-radius: 4px; font-size: 7.5px; color: #e6edf3; margin-bottom: 3px; display:flex; align-items:center; gap:4px;">
+                    <span class="click-hint" style="font-size:7px; padding:1px 5px;">← Click</span>
+                  </div>
+                  <div style="padding: 3px 5px; border-radius: 4px; background: rgba(88,166,255,0.12); border: 1px solid rgba(88,166,255,0.25); font-size: 7.5px; color: #58a6ff; margin-bottom: 3px;">📊 Analytics</div>
+                </div>
+                <!-- Chart area -->
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size: 7px; color: #8b949e; margin-bottom: 5px;">Emotion Distribution · My Event</div>
+                  <div style="display:flex; align-items:flex-end; gap:3px; height:38px; margin-bottom:4px;">
+                    <div style="flex:1; background:#6fcf97; border-radius:2px 2px 0 0; height:80%;"></div>
+                    <div style="flex:1; background:#f2994a; border-radius:2px 2px 0 0; height:50%;"></div>
+                    <div style="flex:1; background:#56ccf2; border-radius:2px 2px 0 0; height:65%;"></div>
+                    <div style="flex:1; background:#9b51e0; border-radius:2px 2px 0 0; height:30%;"></div>
+                    <div style="flex:1; background:#eb5757; border-radius:2px 2px 0 0; height:20%;"></div>
+                  </div>
+                  <div style="display:flex; gap:3px;">
+                    <div style="flex:1; font-size:7px; color:#6b7280; text-align:center;">😊</div>
+                    <div style="flex:1; font-size:7px; color:#6b7280; text-align:center;">😮</div>
+                    <div style="flex:1; font-size:7px; color:#6b7280; text-align:center;">😐</div>
+                    <div style="flex:1; font-size:7px; color:#6b7280; text-align:center;">😢</div>
+                    <div style="flex:1; font-size:7px; color:#6b7280; text-align:center;">😠</div>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 0 16px 16px; font-size: 11.5px; color: #6fcf97;">📈 Full event analytics now available in your dashboard!</div>
+            </div>
+
+          </div>
+
+          <!-- Support Banner -->
+          <div style="margin-top: 20px; padding: 14px 20px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="font-size: 13px; color: var(--text-secondary);">💬 <strong style="color: var(--text-primary);">Need help?</strong> Our support team is ready to guide you through any step.</div>
+            <a href="{{ url_for('contact') }}" class="btn-sm btn-sm-ghost" style="white-space: nowrap;">Contact Support →</a>
+          </div>
+        </div>
+
+      {% endif %}
+    </main>
+  </div>
+
+
+  <!-- EmailJS must load BEFORE the main script so emailjs is defined on click -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    emailjs.init('K0jFkeZMwZA4IEFrG');
+  </script>
+
+  <script>
+    // Set today's date
+    const todayEl = document.getElementById('today-date');
+    if (todayEl) {
+      todayEl.textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    // ── License key elements (only present on default dashboard view) ──
+    const licKeyInput  = document.getElementById('license-input');
+    const licKeyStatus = document.getElementById('license-status');
+    const licKeyBtn    = document.getElementById('request-key-btn');
+
+    // ── On page load: check existing license status via Flask (no Firebase JS auth needed) ──
+    if (licKeyBtn) {
+      fetch('/check-license-status', { credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var evNameNode = document.getElementById('user-req-event-name');
+          var evDateNode = document.getElementById('user-req-event-date');
+          
+          if (data.eventName && evNameNode) {
+              evNameNode.value = data.eventName;
+              evNameNode.disabled = true;
+          }
+          if (data.eventDate && evDateNode) {
+              evDateNode.value = data.eventDate;
+              evDateNode.disabled = true;
+          }
+
+          if (data.status === 'approved' && data.licenseKey) {
+            if (licKeyInput) { licKeyInput.value = data.licenseKey; licKeyInput.style.borderColor = '#6fcf97'; }
+            if (licKeyStatus) { licKeyStatus.style.color = '#6fcf97'; licKeyStatus.textContent = 'Your license key is active and ready.'; }
+            licKeyBtn.style.display = 'none';
+          } else if (data.status === 'pending') {
+            licKeyBtn.textContent = 'Already Requested';
+            licKeyBtn.disabled = true;
+            if (licKeyStatus) { licKeyStatus.style.color = 'var(--text-secondary)'; licKeyStatus.textContent = 'Your request is pending admin approval.'; }
+          } else {
+            licKeyBtn.textContent = 'Request Key';
+            licKeyBtn.disabled = false;
+          }
+        })
+        .catch(function() { 
+          licKeyBtn.textContent = 'Request Key';
+          licKeyBtn.disabled = false;
+        });
+    }
+
+    // ── Request Key button — uses Flask session, NOT Firebase JS SDK ──
+    if (licKeyBtn) {
+      licKeyBtn.addEventListener('click', function() {
+        var evNameNode = document.getElementById('user-req-event-name');
+        var evDateNode = document.getElementById('user-req-event-date');
+        var evName = evNameNode ? evNameNode.value.trim() : '';
+        var evDate = evDateNode ? evDateNode.value.trim() : '';
+
+        if (!evName || !evDate) {
+            if (licKeyStatus) { 
+                licKeyStatus.style.color = '#eb5757'; 
+                licKeyStatus.textContent = 'Please enter both Event Name and Event Date before requesting.';
+            }
+            if (evNameNode && !evName) evNameNode.style.borderColor = '#eb5757';
+            if (evDateNode && !evDate) evDateNode.style.borderColor = '#eb5757';
+            return;
+        }
+
+        // Show feedback immediately
+        licKeyBtn.textContent = 'Requesting\u2026';
+        licKeyBtn.disabled = true;
+        if (licKeyStatus) {
+          licKeyStatus.style.color = 'var(--text-muted)';
+          licKeyStatus.textContent = 'Submitting your request\u2026';
+        }
+
+        // Call Flask route
+        fetch('/request-license-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ eventName: evName, eventDate: evDate })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          if (data.status === 'success') {
+            licKeyBtn.textContent = 'Already Requested';
+            if (licKeyStatus) { licKeyStatus.style.color = 'var(--text-secondary)'; licKeyStatus.textContent = 'Your request is pending admin approval.'; }
+            if (evNameNode) evNameNode.disabled = true;
+            if (evDateNode) evDateNode.disabled = true;
+            
+            // Non-blocking EmailJS notification to admin
+            try {
+              emailjs.send('service_m1az0ba', 'template_q4k8iae', {
+                client_email: '{{ user }}', user_id: 'flask-session'
+              }).catch(function(e) { console.warn('EmailJS:', e); });
+            } catch(e) { console.warn('EmailJS not loaded:', e); }
+
+          } else if (data.status === 'already_requested') {
+            licKeyBtn.textContent = 'Already Requested';
+            if (licKeyStatus) { licKeyStatus.style.color = 'var(--text-secondary)'; licKeyStatus.textContent = 'Your request is already pending admin approval.'; }
+            if (evNameNode) evNameNode.disabled = true;
+            if (evDateNode) evDateNode.disabled = true;
+
+          } else if (data.status === 'already_approved') {
+            if (licKeyInput) { licKeyInput.value = data.licenseKey || ''; licKeyInput.style.borderColor = '#6fcf97'; }
+            licKeyBtn.style.display = 'none';
+            if (licKeyStatus) { licKeyStatus.style.color = '#6fcf97'; licKeyStatus.textContent = 'Your license key is active and ready.'; }
+            if (evNameNode) evNameNode.disabled = true;
+            if (evDateNode) evDateNode.disabled = true;
+
+          } else {
+            licKeyBtn.textContent = 'Request Key';
+            licKeyBtn.disabled = false;
+            if (licKeyStatus) { licKeyStatus.style.color = '#eb5757'; licKeyStatus.textContent = data.message || 'Error submitting. Please try again.'; }
+          }
+        })
+        .catch(function(err) {
+          console.error('Fetch error:', err);
+          licKeyBtn.textContent = 'Request Key';
+          licKeyBtn.disabled = false;
+          if (licKeyStatus) { licKeyStatus.style.color = '#eb5757'; licKeyStatus.textContent = 'Network error. Please try again.'; }
+        });
+      });
+    }
+
+    // ── Admin Panel Logic ──
+    var isAdminUser = ("{{ 'true' if is_admin else 'false' }}" === "true");
+    var currentView = "{{ view }}";
+    if (currentView === 'admin' && isAdminUser) {
+        var listDiv = document.getElementById('requests-list');
+        var countBadge = document.getElementById('count-badge');
+
+        function formatDate(ts) {
+            if (!ts) return '';
+            try { return new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+            catch(e) { return ts; }
+        }
+
+        function loadRequests() {
+            fetch('/admin/pending-requests', { credentials: 'same-origin' })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    listDiv.innerHTML = '';
+
+                    if (data.error) {
+                        listDiv.innerHTML = '<div class="empty-state" style="color:#eb5757;">Error: ' + data.error + '</div>';
+                        return;
+                    }
+
+                    var reqs = data.requests || [];
+                    countBadge.textContent = reqs.length;
+
+                    if (reqs.length === 0) {
+                        listDiv.innerHTML = '<div class="empty-state">✅ No pending requests. All caught up!</div>';
+                        return;
+                    }
+
+                    reqs.forEach(function(req) {
+                        var card = document.createElement('div');
+                        card.className = 'request-card';
+                        card.id = 'card-' + req.id;
+                        card.innerHTML =
+                            '<div style="flex:1;">' +
+                                '<div class="client-email">' + (req.email || '—') + '</div>' +
+                                '<div class="client-company">🏢 ' + (req.company || 'Personal Account') + '</div>' +
+                                '<div style="font-size:12px; color:var(--text-primary); margin-top:6px; margin-bottom:2px;">' + 
+                                    '🎉 ' + (req.eventName || 'Unnamed Event') + 
+                                '</div>' +
+                                '<div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">' + 
+                                    '📅 ' + (req.eventDate || 'No date set') + 
+                                '</div>' +
+                                '<div class="client-date">Requested on ' + formatDate(req.date) + '</div>' +
+                            '</div>' +
+                            '<div>' +
+                                '<div class="key-form">' +
+                                    '<input type="text" id="key-' + req.id + '" class="key-input" placeholder="XXXX-XXXX-XXXX-XXXX">' +
+                                    '<button class="btn-approve">Send to Client</button>' +
+                                '</div>' +
+                                '<div class="status-msg" id="msg-' + req.id + '"></div>' +
+                            '</div>';
+                        
+                        // Attach click handler safely without quoting issues
+                        var approveBtn = card.querySelector('.btn-approve');
+                        approveBtn.onclick = function() {
+                            approveKey(req.id, req.eventName, req.eventDate, req.email);
+                        };
+                        
+                        // Autofill Create Event form on click
+                        card.onclick = function(e) {
+                            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+                            
+                            var emailInput = document.getElementById('event-email');
+                            var nameInput = document.getElementById('event-name');
+                            var dateInput = document.getElementById('event-date');
+                            
+                            emailInput.value = req.email || '';
+                            nameInput.value = req.eventName || ((req.company && req.company !== 'N/A' && req.company !== 'Personal Account' ? req.company : 'Client') + ' Event');
+                            if (dateInput && req.eventDate) dateInput.value = req.eventDate;
+                            
+                            document.getElementById('create-event-form').dataset.requestId = req.id;
+                            document.getElementById('create-event-msg').textContent = '';
+                            
+                            // Visual flash to show it autofilled
+                            emailInput.style.borderColor = 'var(--text-primary)';
+                            nameInput.style.borderColor = 'var(--text-primary)';
+                            if (dateInput) dateInput.style.borderColor = 'var(--text-primary)';
+                            
+                            setTimeout(function() {
+                                emailInput.style.borderColor = 'var(--border)';
+                                nameInput.style.borderColor = 'var(--border)';
+                                if (dateInput) dateInput.style.borderColor = 'var(--border)';
+                            }, 500);
+                        };
+
+                        listDiv.appendChild(card);
+                    });
+                })
+                .catch(function(err) {
+                    listDiv.innerHTML = '<div class="empty-state" style="color:#eb5757;">Failed to load requests. Check your connection.</div>';
+                    console.error(err);
+                });
+        }
+
+        function approveKey(docId, eventName, eventDate, email) {
+            var keyInput = document.getElementById('key-' + docId);
+            var msgEl    = document.getElementById('msg-' + docId);
+            var btn      = keyInput.parentElement.querySelector('.btn-approve');
+            var key      = keyInput.value.trim();
+
+            if (!key) {
+                msgEl.style.color = '#eb5757';
+                msgEl.textContent = 'Please enter a license key first.';
+                return;
+            }
+
+            btn.textContent = 'Sending…';
+            btn.disabled = true;
+            msgEl.textContent = '';
+
+            fetch('/admin/approve-key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ 
+                    docId: docId, 
+                    licenseKey: key,
+                    eventName: eventName,
+                    eventDate: eventDate,
+                    email: email
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success') {
+                    var card = document.getElementById('card-' + docId);
+                    if (card) card.classList.add('approved-card');
+                    btn.textContent = 'Approved ✓';
+                    msgEl.style.color = '#6fcf97';
+                    msgEl.textContent = 'Key sent! The client\'s dashboard will now show the key.';
+                    // Refresh count
+                    var current = parseInt(countBadge.textContent) || 1;
+                    countBadge.textContent = Math.max(0, current - 1);
+
+                    // EASE OF USE: Reset the "Create New Event" form fields
+                    var createForm = document.getElementById('create-event-form');
+                    if (createForm) {
+                        createForm.reset();
+                        delete createForm.dataset.requestId;
+                        var licInput = document.getElementById('event-license-key');
+                        if (licInput) licInput.style.borderColor = 'var(--border)';
+                        var createMsg = document.getElementById('create-event-msg');
+                        if (createMsg) createMsg.textContent = '';
+                    }
+                } else {
+                    btn.textContent = 'Send to Client';
+                    btn.disabled = false;
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = data.error || 'Failed to approve. Try again.';
+                }
+            })
+            .catch(function(err) {
+                btn.textContent = 'Send to Client';
+                btn.disabled = false;
+                msgEl.style.color = '#eb5757';
+                msgEl.textContent = 'Network error. Please retry.';
+                console.error(err);
+            });
+        }
+
+        // --- GENERATE LICENSE KEY LOGIC ---
+        window.generateAdminLicKey = function() {
+            var genBtn = document.getElementById('genBtn');
+            var licInput = document.getElementById('event-license-key');
+            
+            genBtn.disabled = true;
+            genBtn.innerText = '...';
+            
+            fetch('/generate-license-key')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.lic_key) {
+                        licInput.value = data.lic_key;
+                        licInput.style.borderColor = '#6fcf97'; // Success green
+                    } else {
+                        alert('Failed to generate license key');
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    alert('Error generating license key');
+                })
+                .finally(function() {
+                    genBtn.disabled = false;
+                    genBtn.innerText = 'GENERATE';
+                });
+        };
+
+        var createEventForm = document.getElementById('create-event-form');
+        if (createEventForm) {
+            createEventForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var email = document.getElementById('event-email').value.trim();
+                var name = document.getElementById('event-name').value.trim();
+                var date = document.getElementById('event-date').value.trim();
+                var key = document.getElementById('event-license-key').value.trim();
+                var msgEl = document.getElementById('create-event-msg');
+                
+                if (!email || !name || !date) {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Please fill out all required fields.';
+                    return;
+                }
+                
+                if (!key) {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Please click GENERATE to create a license key.';
+                    return;
+                }
+                
+                var reqId = document.getElementById('create-event-form').dataset.requestId;
+                if (!reqId) {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Please select a pending request from the left list first.';
+                    return;
+                }
+                
+                var targetInput = document.getElementById('key-' + reqId);
+                if (targetInput) {
+                    targetInput.value = key;
+                    msgEl.style.color = '#6fcf97';
+                    msgEl.textContent = 'License key populated! Click "Send to Client" on the request card.';
+                    
+                    // Highlight the card so the user knows where to look
+                    var card = document.getElementById('card-' + reqId);
+                    if (card) {
+                        card.style.borderColor = 'var(--text-primary)';
+                        setTimeout(function() {
+                            card.style.borderColor = 'var(--border)';
+                        }, 1000);
+                    }
+                } else {
+                    msgEl.style.color = '#eb5757';
+                    msgEl.textContent = 'Could not find the corresponding request card.';
+                }
+            });
+        }
+
+        // Load on page ready
+        loadRequests();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadRequests, 30000);
+    }
+
+    // ── Setup Guide: staggered scroll-reveal ──
+    (function() {
+      var cards = document.querySelectorAll('.setup-card');
+      if (!cards.length) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            var delay = parseInt(el.dataset.animDelay) || 0;
+            setTimeout(function() { el.classList.add('in-view'); }, delay);
+            observer.unobserve(el);
+          }
+        });
+      }, { threshold: 0.12 });
+      cards.forEach(function(card, i) {
+        card.dataset.animDelay = i * 130;
+        observer.observe(card);
+      });
+    })();
+
+    // Mobile Sidebar Toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        var menuBtn = document.getElementById('mobile-menu-btn');
+        var sidebar = document.querySelector('.sidebar');
+        if(menuBtn && sidebar) {
+            menuBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+        }
+    });
+  </script>
+
+</body>
+
+</html>

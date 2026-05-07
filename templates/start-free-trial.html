@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Start Free Trial - Leap Emotion</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+  <style>
+    .trial-hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 6vw;
+      background: var(--bg-main);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .trial-bg-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .trial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 50px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
+      animation: fadeSlideUp 0.8s 0.2s ease both;
+    }
+
+    .trial-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .trial-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      transition: all 0.2s;
+      background: var(--bg-main);
+      color: var(--text-primary);
+    }
+
+    .form-control::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--text-secondary);
+      background: var(--bg-hover);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap .form-control {
+      padding-right: 46px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
+    }
+
+    .toggle-password:hover {
+      color: var(--text-primary);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--text-primary);
+      color: var(--text-inverse);
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: var(--text-secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .divider span {
+      padding: 0 14px;
+    }
+
+    .btn-google {
+      width: 100%;
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-google:hover {
+      background: var(--border);
+      transform: translateY(-1px);
+    }
+
+    .trial-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .trial-footer a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .trial-footer a:hover {
+      color: var(--text-secondary);
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav id="main-nav">
+    <a href="{{ url_for('index') }}" class="logo">
+      <span class="logo-dot"></span>
+      Leap Emotion
+    </a>
+    <!-- <div class="nav-right">
+      <a href="{{ url_for('login') }}" class="nav-login">Sign in</a>
+    </div> -->
+  </nav>
+
+  <section class="trial-hero">
+    <div class="trial-bg-glow"></div>
+    <div class="trial-card">
+      <h1 class="trial-title">Start your free trial</h1>
+      <p class="trial-sub">Experience real-time emotion intelligence firsthand. No credit card required.</p>
+
+      <div id="auth-error"
+        style="display:none; background: rgba(255, 100, 100, 0.1); color: #ff8b8b; border: 1px solid #ff8b8b; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+      </div>
+
+      <!-- <h1 class="trial-title">Start free trial</h1>
+      <p class="trial-sub">Get 14 days of premium emotion intelligence. No card required.</p> -->
+
+      <!-- Alert for Errors -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div
+        style="padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; text-align: center; 
+                 {% if category == 'danger' %}background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+                 {% else %}background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #a7f3d0;{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <form id="signup-form" method="POST" action="{{ url_for('signup') }}">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="Jane Doe" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="jane@company.com" required>
+        </div>
+        <div class="form-group">
+          <label for="company">Company Name</label>
+          <input type="text" id="company" name="company" class="form-control" placeholder="Acme Inc." required>
+        </div>
+        <div class="form-group">
+          <label for="password">Choose Password</label>
+          <div style="position: relative;">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Minimum 6 characters"
+              required minlength="6">
+            <button type="button" class="toggle-password" onclick="togglePass(this)">
+              <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Create Account</button>
+      </form>
+
+      <div class="trial-footer">
+        <p style="margin-bottom: 12px; color: var(--text-muted);">Find us on social media</p>
+        <div class="footer-social" style="justify-content: center; margin-top: 0; margin-bottom: 24px;">
+          <a href="https://linkedin.com/company/leap-emotion" target="_blank" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+              <rect x="2" y="9" width="4" height="12" />
+              <circle cx="4" cy="4" r="2" />
+            </svg>
+          </a>
+          <a href="https://instagram.com/leapemotion" target="_blank" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+          </a>
+          <a href="https://twitter.com/leapemotion" target="_blank" aria-label="X (Twitter)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M4 4l11.733 16h4.267l-11.733-16z M4 20l6.768-6.768 M13.232 10.768L20 4" />
+            </svg>
+          </a>
+        </div>
+        Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function togglePass(btn) {
+      const input = btn.previousElementSibling;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>';
+      } else {
+        input.type = 'password';
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      }
+    }
+  </script>
+
+  <script src="{{ url_for('static', filename='firebase-service.js') }}?v=6"></script>
+  <script src="{{ url_for('static', filename='auth.js') }}?v=6"></script>
+</body>
+
+</html>
