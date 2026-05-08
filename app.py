@@ -225,7 +225,7 @@ def dashboard():
             # Direct document GET by UID — allowed by Firestore rule: request.auth.uid == userId
             doc_url = (f"https://firestore.googleapis.com/v1/projects/humananalysisv0"
                        f"/databases/(default)/documents/Users/{user_id}?key={FIREBASE_API_KEY}")
-            try:    
+            try:
                 res = requests.get(doc_url, headers={"Authorization": f"Bearer {token}"})
                 print(f"\n[DEBUG] Profile GET status: {res.status_code}\n")
                 if res.status_code == 200:

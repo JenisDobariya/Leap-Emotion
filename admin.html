@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - EmoSense</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 20px;
+        }
+
+        .request-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .client-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .key-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .key-input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-main);
+            color: white;
+            outline: none;
+            min-width: 250px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav id="main-nav">
+        <a href="#" class="logo"><span class="logo-dot"></span> EmoSense Admin</a>
+    </nav>
+
+    <div class="admin-container">
+        <h1 style="margin-bottom: 30px;">Pending License Requests</h1>
+        <div id="requests-list">Loading requests...</div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const adminEmail = "jenis@gmail.com"; // MUST MATCH YOUR FIREBASE RULES
+
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user && user.email === adminEmail) {
+                loadRequests();
+            } else {
+                document.getElementById('requests-list').innerHTML = "Access Denied. You must log in with the admin account.";
+            }
+        });
+
+        // function loadRequests() {
+        //     const db = firebase.firestore();
+        //     const listDiv = document.getElementById('requests-list');
+
+        //     db.collection("license_requests").where("status", "==", "pending").onSnapshot((snapshot) => {
+        //         listDiv.innerHTML = "";
+        //         if (snapshot.empty) {
+        //             listDiv.innerHTML = "No pending requests.";
+        //             return;
+        //         }
+
+        //         snapshot.forEach((doc) => {
+        //             const data = doc.data();
+        //             const card = document.createElement('div');
+        //             card.className = "request-card";
+        //             card.innerHTML = `
+        //     <div class="client-info">
+        //       <div style="font-weight: 500; color: var(--text-primary);">${data.clientEmail || data.email}</div>
+        //       <div style="font-size: 12px; color: var(--text-muted);">User ID: ${data.userId}</div>
+        //     </div>
+        //     <div class="key-form">
+        //       <input type="text" id="key-${doc.id}" class="key-input" placeholder="Enter generated key...">
+        //       <button onclick="approveKey('${doc.id}', '${data.userId}')" class="btn-primary" style="padding: 10px 20px; font-size: 13px;">Send to Client</button>
+        //     </div>
+        //   `;
+        //             listDiv.appendChild(card);
+        //         });
+        //     });
+        // }
+
+        // function approveKey(requestId, userId) {
+        //     const keyInput = document.getElementById(`key-${requestId}`).value.trim();
+        //     if (!keyInput) { alert("Please enter a key first."); return; }
+
+        //     const db = firebase.firestore();
+
+        //     // Update the existing request document with the key and status
+        //     db.collection("license_requests").doc(requestId).update({
+        //         status: "approved",
+        //         licenseKey: keyInput,
+        //         approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+        //     })
+        //         .then(() => {
+        //             alert("Key saved to request! It will now appear on the client's dashboard.");
+        //         })
+        //         .catch((error) => console.error("Error approving key:", error));
+        // }
+
+        function loadRequests() {
+            const db = firebase.firestore();
+            const listDiv = document.getElementById('requests-list');
+
+            db.collection("license_requests").where("status", "==", "pending").onSnapshot((snapshot) => {
+                listDiv.innerHTML = "";
+                if (snapshot.empty) {
+                    listDiv.innerHTML = "No pending requests.";
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "request-card";
+                    card.innerHTML = `
+            <div class="client-info">
+              <div style="font-weight: 500; color: var(--text-primary);">${data.email}</div>
+            </div>
+            <div class="key-form">
+              <input type="text" id="key-${doc.id}" class="key-input" placeholder="Enter generated key...">
+              <button onclick="approveKey('${doc.id}')" class="btn-primary" style="padding: 10px 20px; font-size: 13px;">Send to Client</button>
+            </div>
+          `;
+                    listDiv.appendChild(card);
+                });
+            });
+        }
+
+        function approveKey(requestId) {
+            const keyInput = document.getElementById(`key-${requestId}`).value.trim();
+            if (!keyInput) { alert("Please enter a key first."); return; }
+
+            const db = firebase.firestore();
+            // Get the currently logged-in admin's email
+            const adminEmail = firebase.auth().currentUser.email;
+
+            db.collection("license_requests").doc(requestId).update({
+                status: "approved",
+                licenseKey: keyInput,
+                approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                acceptedBy: adminEmail // <-- ADDS THE ADMIN'S EMAIL
+            })
+                .then(() => {
+                    alert("Key saved to request! It will now appear on the client's dashboard.");
+                })
+                .catch((error) => console.error("Error approving key:", error));
+        }
+    </script>
+</body>
+
+</html>

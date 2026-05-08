@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- New -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EmoSense – Human Emotion Analysis</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=3">
+  <script>document.documentElement.classList.add('auth-loading');</script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+</head>
+
+<body class="public-page">
+
+  <nav id="main-nav">
+    <a href="#" class="logo">
+      <span class="logo-dot"></span>
+      EmoSense
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#usecases">Use cases</a></li>
+      <li><a href="contact.html">Contact us</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="login.html" class="nav-login">Sign in</a>
+      <a href="contact.html" class="nav-cta">Get early access</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg-glow"></div>
+    <div style="margin: 0px auto 30px; text-align: center; width: 100%; max-width: 900px; position: relative;">
+      <img src="hero_image.png" alt="Human Emotion Analysis Graphic"
+        style="max-width: 100%; width: 100%; max-height: 600px; object-fit: fill; object-position: bottom; border-radius: 20px; box-shadow: 0 0 80px rgba(67, 97, 238, 0.15); border: 1px solid var(--border); opacity: 0.9;">
+    </div>
+    <div class="badge"><span class="badge-dot"></span> Real-time emotion intelligence · Now in beta</div>
+    <h1>Understand how people <em>truly</em> feel</h1>
+    <p class="hero-sub">EmoSense reads facial expressions and behavioral signals to give you precise, real-time insight
+      into human emotion — at any scale.</p>
+    <div class="hero-actions">
+      <a href="start-free-trial.html" class="btn-primary">Start free trial</a>
+      <a href="#" class="btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="7.5" stroke="var(--text-secondary)" />
+          <polygon points="6.5,5 11,8 6.5,11" fill="var(--text-secondary)" />
+        </svg>
+        Watch demo
+      </a>
+    </div>
+
+    <div class="demo-widget">
+      <div class="demo-chrome">
+        <span class="chrome-dot" style="background:#4A5C6A"></span>
+        <span class="chrome-dot" style="background:#9BA8AB"></span>
+        <span class="chrome-dot" style="background:#CCD0CF"></span>
+        <span class="demo-label">Live analysis preview</span>
+      </div>
+
+      <div class="face-wrap">
+        <svg width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <circle cx="65" cy="65" r="58" fill="var(--bg-card)" stroke="var(--border)" stroke-width="1.5" />
+          <ellipse id="eye-l" cx="46" cy="54" rx="5.5" ry="6" fill="var(--text-primary)" />
+          <ellipse id="eye-r" cx="84" cy="54" rx="5.5" ry="6" fill="var(--text-primary)" />
+          <path id="brow-l" d="M38 43 Q46 39 54 43" stroke="var(--text-primary)" stroke-width="2.2" fill="none"
+            stroke-linecap="round" />
+          <path id="brow-r" d="M76 43 Q84 39 92 43" stroke="var(--text-primary)" stroke-width="2.2" fill="none"
+            stroke-linecap="round" />
+          <path id="mouth" d="M48 82 Q65 97 82 82" stroke="var(--text-primary)" stroke-width="2.2" fill="none"
+            stroke-linecap="round" />
+          <ellipse id="cheek-l" cx="38" cy="74" rx="9" ry="6" fill="var(--bg-hover)" opacity="0.65" />
+          <ellipse id="cheek-r" cx="92" cy="74" rx="9" ry="6" fill="var(--bg-hover)" opacity="0.65" />
+          <rect x="7" y="0" width="116" height="3" fill="none" stroke="var(--text-primary)" stroke-width="1.2"
+            opacity="0.5">
+            <animate attributeName="y" from="7" to="116" dur="2.4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" from="0.6" to="0" dur="2.4s" repeatCount="indefinite" />
+          </rect>
+          <path d="M7 22 L7 7 L22 7" stroke="var(--text-primary)" stroke-width="1.8" fill="none"
+            stroke-linecap="round" />
+          <path d="M108 7 L123 7 L123 22" stroke="var(--text-primary)" stroke-width="1.8" fill="none"
+            stroke-linecap="round" />
+          <path d="M7 108 L7 123 L22 123" stroke="var(--text-primary)" stroke-width="1.8" fill="none"
+            stroke-linecap="round" />
+          <path d="M108 123 L123 123 L123 108" stroke="var(--text-primary)" stroke-width="1.8" fill="none"
+            stroke-linecap="round" />
+        </svg>
+
+        <div class="emotion-bars">
+          <div class="emo-row">
+            <span class="emo-label">Joy</span>
+            <div class="emo-track">
+              <div class="emo-fill" id="b-joy" style="width:82%;background:#CCD0CF"></div>
+            </div>
+            <span class="emo-pct" id="p-joy">82%</span>
+          </div>
+          <div class="emo-row">
+            <span class="emo-label">Surprise</span>
+            <div class="emo-track">
+              <div class="emo-fill" id="b-surprise" style="width:45%;background:#9BA8AB"></div>
+            </div>
+            <span class="emo-pct" id="p-surprise">45%</span>
+          </div>
+          <div class="emo-row">
+            <span class="emo-label">Neutral</span>
+            <div class="emo-track">
+              <div class="emo-fill" id="b-neutral" style="width:20%;background:#4A5C6A"></div>
+            </div>
+            <span class="emo-pct" id="p-neutral">20%</span>
+          </div>
+          <div class="emo-row">
+            <span class="emo-label">Sadness</span>
+            <div class="emo-track">
+              <div class="emo-fill" id="b-sadness" style="width:5%;background:#253745"></div>
+            </div>
+            <span class="emo-pct" id="p-sadness">5%</span>
+          </div>
+          <div class="emo-row">
+            <span class="emo-label">Anger</span>
+            <div class="emo-track">
+              <div class="emo-fill" id="b-anger" style="width:3%;background:#11212D"></div>
+            </div>
+            <span class="emo-pct" id="p-anger">3%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-insight">
+        <span class="insight-star">✦</span>
+        <span id="insight-text">Subject displays strong positive engagement. Confidence: 94%. Micro-expressions suggest
+          genuine emotional response rather than performed happiness.</span>
+      </div>
+
+      <div class="demo-controls">
+        <button class="emo-btn active" onclick="setEmo('joy',this)">Joy</button>
+        <button class="emo-btn" onclick="setEmo('sadness',this)">Sadness</button>
+        <button class="emo-btn" onclick="setEmo('anger',this)">Anger</button>
+        <button class="emo-btn" onclick="setEmo('surprise',this)">Surprise</button>
+        <button class="emo-btn" onclick="setEmo('fear',this)">Fear</button>
+        <button class="emo-btn" onclick="setEmo('neutral',this)">Neutral</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats-strip">
+    <div class="stat-item">
+      <span class="stat-num">97%</span>
+      <span class="stat-label">accuracy rate</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">2sec</span>
+      <span class="stat-label">avg. response time</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">12+</span>
+      <span class="stat-label">emotions detected</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">500K+</span>
+      <span class="stat-label">analyses per day</span>
+    </div>
+  </div>
+
+  <section class="section" id="features">
+    <div class="section-inner">
+      <p class="section-tag">Capabilities</p>
+      <h2 class="section-title">Every layer of human emotion, decoded</h2>
+      <!-- <div class="features-grid">
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <div class="feat-name">Facial Action Analysis</div>
+          <div class="feat-desc">Tracks 72 facial landmarks in real time, detecting subtle muscle movements invisible to
+            the human eye using our proprietary mesh model.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
+              stroke-width="1.8" stroke-linecap="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div class="feat-name">Real-time Streaming</div>
+          <div class="feat-desc">Sub-30ms latency with continuous emotion timelines. Built for live interactions, video
+            calls, and broadcast — not post-processing.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.8"
+              stroke-linecap="round">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </div>
+          <div class="feat-name">Multi-person Tracking</div>
+          <div class="feat-desc">Simultaneously analyze emotions across groups — ideal for audience response, focus
+            groups, classrooms, and team dynamics studies.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
+              stroke-linecap="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <div class="feat-name">Privacy-first Design</div>
+          <div class="feat-desc">On-device processing options, GDPR-compliant architecture, end-to-end encryption, and
+            zero raw biometric data retention by default.</div>
+        </div>
+      </div> -->
+
+
+
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <div class="feat-name">Edge-Powered AI Engine</div>
+          <div class="feat-desc">Our dedicated desktop software runs powerful deep-learning models locally on your Mini
+            PC, ensuring high-speed facial analysis without relying on expensive cloud processing.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.8"
+              stroke-linecap="round">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </div>
+          <div class="feat-name">Crowd & Multi-Face Tracking</div>
+          <div class="feat-desc">Simultaneously detects and analyzes up to 15 distinct faces in a single camera frame.
+            Perfect for tracking group engagement in retail aisles, exhibition booths, and queues.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
+              stroke-width="1.8" stroke-linecap="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div class="feat-name">Live Dashboard Synchronization</div>
+          <div class="feat-desc">While heavy video processing happens locally, anonymous emotion metrics are instantly
+            synced to your secure cloud database, allowing you to monitor live insights from any device.</div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feat-icon" style="background:var(--bg-hover)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" stroke-width="1.8"
+              stroke-linecap="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <div class="feat-name">100% Anonymous & Private</div>
+          <div class="feat-desc">Privacy by design. The local software processes video frames in memory and instantly
+            discards them. Only anonymous emotion tallies are stored—no photos or personal data are ever saved.</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="how-section" id="how">
+    <div class="section-inner">
+      <p class="section-tag">How it works</p>
+      <h2 class="section-title">From hardware setup to real-time insights</h2>
+      <div class="steps-grid">
+
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-title">Hardware Setup</div>
+          <div class="step-desc">Mount the HD camera in your target engagement zone and connect it directly to your
+            local mini PC or processing unit.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-title">Install Application</div>
+          <div class="step-desc">Run our lightweight installer to securely deploy the emotion detection engine into your
+            dedicated local application directory.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-title">Initialize Event</div>
+          <div class="step-desc">Launch the desktop software with your license key. The system instantly begins tracking
+            multiple faces, storing the data in a unified cloud structure.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div class="step-title">Analyze Dashboard</div>
+          <div class="step-desc">Log into the web portal from any device to view live emotional metrics, track audience
+            engagement trends, and export business insights.</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-inner">
+      <p class="section-tag">Detection library</p>
+      <h2 class="section-title">12 core emotions, thousands of nuances</h2>
+      <div class="emotions-grid">
+        <div class="emotion-card"><span class="emo-emoji">😄</span>
+          <div class="emo-name">Joy</div>
+          <div class="emo-sub">delight · elation · contentment</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">😢</span>
+          <div class="emo-name">Sadness</div>
+          <div class="emo-sub">grief · disappointment · longing</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">😠</span>
+          <div class="emo-name">Anger</div>
+          <div class="emo-sub">frustration · irritation · rage</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">😨</span>
+          <div class="emo-name">Fear</div>
+          <div class="emo-sub">anxiety · worry · dread</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">😲</span>
+          <div class="emo-name">Surprise</div>
+          <div class="emo-sub">astonishment · wonder · shock</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">🤢</span>
+          <div class="emo-name">Disgust</div>
+          <div class="emo-sub">revulsion · aversion · contempt</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">😌</span>
+          <div class="emo-name">Calm</div>
+          <div class="emo-sub">serenity · peace · relaxation</div>
+        </div>
+        <div class="emotion-card"><span class="emo-emoji">😏</span>
+          <div class="emo-name">Contempt</div>
+          <div class="emo-sub">disdain · scorn · dismissal</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="usecases" style="padding-top:10;">
+    <div class="section-inner">
+      <p class="section-tag">Use cases</p>
+      <h2 class="section-title">Built for every industry that cares about people</h2>
+      <div class="usecases-grid">
+        <div class="usecase-card">
+          <span class="usecase-tag">Healthcare</span>
+          <div class="usecase-title">Mental health monitoring</div>
+          <div class="usecase-desc">Support therapists with continuous emotional state tracking during sessions,
+            identifying patterns invisible to the human observer.</div>
+        </div>
+        <div class="usecase-card">
+          <span class="usecase-tag">UX Research</span>
+          <div class="usecase-title">User testing & feedback</div>
+          <div class="usecase-desc">Capture genuine emotional reactions to prototypes and interfaces in real time — no
+            surveys, no recall bias, no guesswork.</div>
+        </div>
+        <div class="usecase-card">
+          <span class="usecase-tag">Education</span>
+          <div class="usecase-title">Student engagement analysis</div>
+          <div class="usecase-desc">Measure confusion, focus, and interest levels across classrooms to help educators
+            adapt and improve learning outcomes.</div>
+        </div>
+        <div class="usecase-card">
+          <span class="usecase-tag">Customer Service</span>
+          <div class="usecase-title">Support quality assurance</div>
+          <div class="usecase-desc">Monitor customer and agent emotional states during support calls to flag escalation
+            risks and coach performance in real time.</div>
+        </div>
+        <div class="usecase-card">
+          <span class="usecase-tag">Media</span>
+          <div class="usecase-title">Audience response measurement</div>
+          <div class="usecase-desc">Replace post-screening surveys with live emotional data from test audiences — minute
+            by minute, scene by scene.</div>
+        </div>
+        <div class="usecase-card">
+          <span class="usecase-tag">HR & Recruiting</span>
+          <div class="usecase-title">Interview analytics</div>
+          <div class="usecase-desc">Surface non-verbal signals during interviews to help recruiters reduce bias and
+            build a more complete picture of candidates.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pricing-section" id="pricing" style="display: none;">
+    <div class="section-inner">
+      <p class="section-tag">Pricing</p>
+      <h2 class="section-title">Simple, transparent pricing</h2>
+      <div class="pricing-grid">
+        <div class="plan-card">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price"><sup>$</sup>0</div>
+          <div class="plan-period">Free forever</div>
+          <hr class="plan-divider">
+          <ul class="plan-features">
+            <li><span class="plan-check">✓</span> 1,000 analyses / month</li>
+            <li><span class="plan-check">✓</span> 7 core emotions</li>
+            <li><span class="plan-check">✓</span> Community support</li>
+            <li><span class="plan-check">✓</span> 720p resolution</li>
+          </ul>
+          <a href="#" class="plan-btn">Get started free</a>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge">Most popular</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price"><sup>$</sup>79</div>
+          <div class="plan-period">per month · billed annually</div>
+          <hr class="plan-divider">
+          <ul class="plan-features">
+            <li><span class="plan-check">✓</span> 50,000 analyses / month</li>
+            <li><span class="plan-check">✓</span> All 12 emotions + micro-expressions</li>
+            <li><span class="plan-check">✓</span> WebSocket real-time stream</li>
+            <li><span class="plan-check">✓</span> Multi-person tracking (up to 8)</li>
+            <li><span class="plan-check">✓</span> Advanced analytics dashboard</li>
+            <li><span class="plan-check">✓</span> Priority email support</li>
+            <li><span class="plan-check">✓</span> 4K resolution</li>
+          </ul>
+          <a href="start-free-trial.html" class="plan-btn primary">Start 14-day free trial</a>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Enterprise</div>
+          <div class="plan-price" style="font-size:36px;letter-spacing:-1px;">Custom</div>
+          <div class="plan-period">talk to our team</div>
+          <hr class="plan-divider">
+          <ul class="plan-features">
+            <li><span class="plan-check">✓</span> Unlimited analyses</li>
+            <li><span class="plan-check">✓</span> On-device / edge deployment</li>
+            <li><span class="plan-check">✓</span> Custom model fine-tuning</li>
+            <li><span class="plan-check">✓</span> SLA & dedicated infra</li>
+            <li><span class="plan-check">✓</span> SSO & SAML</li>
+            <li><span class="plan-check">✓</span> Dedicated account manager</li>
+          </ul>
+          <a href="#" class="plan-btn">Contact sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Ready to see what your users <em>really</em> feel?</h2>
+    <p class="cta-sub">Join the waitlist and get early access to the most accurate emotion intelligence platform
+      available. No credit card required.</p>
+    <div class="cta-actions">
+      <a href="contact.html" class="btn-primary">Request early access</a>
+      <a href="contact.html" class="btn-ghost">Talk to our team →</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo" style="font-size:20px;">
+          <span class="logo-dot"></span>
+          EmoSense
+        </a>
+        <p>Human emotion analysis for the modern world. Real-time, accurate, and privacy-first.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#">Features</a></li>
+            <li><a href="#">Changelog</a></li>
+            <li><a href="#">Roadmap</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <ul>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">Integrations</a></li>
+            <li><a href="#">SDKs</a></li>
+            <li><a href="#">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 EmoSense, Inc. All rights reserved.</span>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="auth.js"></script>
+</body>
+
+</html>

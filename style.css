@@ -6,27 +6,6 @@
   padding: 0;
 }
 
-
-/* ── Global Scrollbar (theme-matched) ── */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #4A5C6A #11212D;
-}
-*::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-*::-webkit-scrollbar-track {
-  background: #11212D;
-}
-*::-webkit-scrollbar-thumb {
-  background: #4A5C6A;
-  border-radius: 6px;
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: #9BA8AB;
-}
-
 /* Anti-FOUC (Flash of Unauthenticated Content) classes */
 .auth-loading body {
   visibility: hidden;
@@ -95,8 +74,8 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 3vw 0 2vw;
-  height: 50px;
+  padding: 0 6vw;
+  height: 68px;
   background: rgba(17, 33, 45, 0.92);
   /* #11212D with opacity */
   backdrop-filter: blur(16px);
@@ -113,15 +92,11 @@ nav.scrolled {
   font-family: 'DM Serif Display', serif;
   font-size: 22px;
   letter-spacing: -0.5px;
-  color: #ffffff;
+  color: var(--text-primary);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.brand-name {
-  color: #ffffff;
 }
 
 .logo-dot {
@@ -209,19 +184,7 @@ nav.scrolled {
   text-align: center;
   position: relative;
   overflow: hidden;
-  padding-top: 50px;
-  background-image: url('hero_image.png');
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 20, 27, 0.82);
-  z-index: 0;
+  padding-top: 68px;
 }
 
 .hero-bg-glow {
@@ -1003,39 +966,6 @@ footer {
   max-width: 260px;
   margin-top: 12px;
   line-height: 1.65;
-}
-
-.footer-social {
-  display: flex;
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.footer-social a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--bg-hover);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-decoration: none;
-}
-
-.footer-social a:hover {
-  background: var(--text-primary);
-  color: var(--bg-main);
-  border-color: var(--text-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.footer-social svg {
-  width: 18px;
-  height: 18px;
 }
 
 .footer-cols {

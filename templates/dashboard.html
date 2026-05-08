@@ -691,9 +691,11 @@
       }
     }
 
+
     @media (max-width: 768px) {
       .hamburger { display: inline-flex !important; }
       .sidebar {
+        display: flex;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
         z-index: 1000;
@@ -1204,6 +1206,8 @@
           </div>
         </div>
 
+
+
       {% endif %}
     </main>
   </div>
@@ -1616,6 +1620,12 @@
         if(menuBtn && sidebar) {
             menuBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('show');
+            });
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(e) {
+                if (sidebar.classList.contains('show') && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                }
             });
         }
     });
