@@ -94,4 +94,3 @@ The product operates on a **Hardware-Enabled SaaS** framework, strategically tar
 
 ---
 *Built for the future of customer experience.*
->>>>>>> 6dd4fff6034e19878198443d4f6c224f621a7f9e

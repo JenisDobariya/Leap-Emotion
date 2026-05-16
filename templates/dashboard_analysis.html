@@ -68,11 +68,28 @@
 
 
         /* ── Global Scrollbar (theme-matched) ── */
-        * { scrollbar-width: thin; scrollbar-color: rgba(123, 104, 255, 0.4) #07090f; }
-        *::-webkit-scrollbar { width: 6px; height: 6px; }
-        *::-webkit-scrollbar-track { background: #07090f; }
-        *::-webkit-scrollbar-thumb { background: rgba(123, 104, 255, 0.4); border-radius: 6px; }
-        *::-webkit-scrollbar-thumb:hover { background: rgba(123, 104, 255, 0.8); }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(123, 104, 255, 0.4) #07090f;
+        }
+
+        *::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #07090f;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: rgba(123, 104, 255, 0.4);
+            border-radius: 6px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: rgba(123, 104, 255, 0.8);
+        }
 
 
         html {
@@ -1813,17 +1830,6 @@
 
         <!-- REAL CONTENT — revealed after first data load -->
         <div id="mainContent">
-
-            <div class="page-header">
-                <div class="welcome-text">
-                    <span class="greet">DASHBOARD · LIVE VIEW</span>
-                    Welcome, <span id="userDisplay">{{ user }}</span>
-                </div>
-                <div class="live-badge">
-                    <div class="live-dot"></div>LIVE · AUTO-REFRESH 5s
-                </div>
-            </div>
-
             <div class="event-selector">
                 <span class="selector-label">Active Event</span>
                 <select id="eventFilter"></select>
@@ -2346,7 +2352,7 @@
             initDrag();
             loadDashboard();
             setInterval(loadDashboard, 5000);
-            
+
             // Hide navbar and adjust padding if loaded inside an iframe (new layout)
             if (window.location.search.includes('embedded=true')) {
                 const nav = document.querySelector('nav');

@@ -29,7 +29,7 @@
     </ul>
     <div class="nav-right">
       {% if session['user'] %}
-      <a href="{{ url_for('dashboard') }}" class="nav-avatar" title="My Account"
+      <a href="{{ url_for('homepage') }}" class="nav-avatar" title="My Account"
         style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#253745;color:#CCD0CF;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;text-decoration:none;border:1px solid #4A5C6A;transition:border-color 0.2s;"
         onmouseover="this.style.borderColor='#9BA8AB'" onmouseout="this.style.borderColor='#4A5C6A'">
         {{ session['user'][0] | upper }}
@@ -44,8 +44,8 @@
   <section class="hero">
     <div class="hero-bg-glow"></div>
 
-    <div class="badge"><span class="badge-dot"></span> Real-time emotion intelligence · Now in beta</div>
-    <h1>Understand how people <em>truly</em> feel</h1>
+    <div class="badge"><span class="badge-dot"></span> Real-time emotion intelligence</div>
+    <h1 class="hero-title">Understand how people <em>truly</em> feel</h1>
     <p class="hero-sub"><span class="brand-name">Leap Emotion</span> reads facial expressions and behavioral signals to
       give you precise, real-time insight
       into human emotion — at any scale.</p>
@@ -162,7 +162,7 @@
       <span class="stat-label">avg. response time</span>
     </div>
     <div class="stat-item">
-      <span class="stat-num">12+</span>
+      <span class="stat-num">8+</span>
       <span class="stat-label">emotions detected</span>
     </div>
     <div class="stat-item">
@@ -279,9 +279,9 @@
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
           </div>
-          <div class="feat-name">100% Anonymous & Private</div>
+          <div class="feat-name">100% Anonymous persons identities & Private System</div>
           <div class="feat-desc">Privacy by design. The local software processes video frames in memory and instantly
-            discards them. Only anonymous emotion tallies are stored—no photos or personal data are ever saved.</div>
+            discards them. Only anonymous emotion tallies are stored—no photos & personal data are ever saved.</div>
         </div>
 
       </div>
@@ -329,7 +329,7 @@
   <section class="section">
     <div class="section-inner">
       <p class="section-tag">Detection library</p>
-      <h2 class="section-title">12 core emotions, thousands of nuances</h2>
+      <h2 class="section-title">8 core emotions, thousands of nuances</h2>
       <div class="emotions-grid">
         <div class="emotion-card"><span class="emo-emoji">😄</span>
           <div class="emo-name">Joy</div>
@@ -484,49 +484,8 @@
           Leap Emotion
         </a>
         <p>Human emotion analysis for the modern world. Real-time, accurate, and privacy-first.</p>
-        <div class="footer-social">
-          <a href="https://linkedin.com/company/leap-emotion" target="_blank" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-              <rect x="2" y="9" width="4" height="12" />
-              <circle cx="4" cy="4" r="2" />
-            </svg>
-          </a>
-          <a href="https://instagram.com/leapemotion" target="_blank" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-            </svg>
-          </a>
-          <a href="https://twitter.com/leapemotion" target="_blank" aria-label="X (Twitter)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M4 4l11.733 16h4.267l-11.733-16z M4 20l6.768-6.768 M13.232 10.768L20 4" />
-            </svg>
-          </a>
-        </div>
       </div>
       <div class="footer-cols">
-        <div class="footer-col">
-          <h4>Product</h4>
-          <ul>
-            <li><a href="#">Features</a></li>
-            <li><a href="#">Changelog</a></li>
-            <li><a href="#">Roadmap</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Developers</h4>
-          <ul>
-            <li><a href="#">Documentation</a></li>
-            <li><a href="#">Integrations</a></li>
-            <li><a href="#">SDKs</a></li>
-            <li><a href="#">Status</a></li>
-          </ul>
-        </div>
         <div class="footer-col">
           <h4>Company</h4>
           <ul>
@@ -536,10 +495,37 @@
             <li><a href="{{ url_for('contact') }}">Contact</a></li>
           </ul>
         </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <div class="footer-social">
+            <a href="https://linkedin.com/company/leap-emotion" target="_blank" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect x="2" y="9" width="4" height="12" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            </a>
+            <a href="https://instagram.com/leapemotion" target="_blank" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+            </a>
+            <a href="https://twitter.com/leapemotion" target="_blank" aria-label="X (Twitter)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M4 4l11.733 16h4.267l-11.733-16z M4 20l6.768-6.768 M13.232 10.768L20 4" />
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span class="footer-copy">© 2026 <span class="brand-name">Leap Emotion</span>, Inc. All rights reserved.</span>
+      <span class="footer-copy">© 2026 <span class="brand-name">Leap Emotion</span>. All rights reserved.</span>
       <div class="footer-links">
         <a href="#">Privacy</a>
         <a href="#">Terms</a>

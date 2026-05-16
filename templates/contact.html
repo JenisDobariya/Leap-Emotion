@@ -184,7 +184,7 @@
     </a>
     <div class="nav-right">
       {% if session['user'] %}
-        <a href="{{ url_for('dashboard') }}" class="nav-avatar" title="My Account"
+        <a href="{{ url_for('homepage') }}" class="nav-avatar" title="My Account"
           style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#253745;color:#CCD0CF;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;text-decoration:none;border:1px solid #4A5C6A;transition:border-color 0.2s;"
           onmouseover="this.style.borderColor='#9BA8AB'" onmouseout="this.style.borderColor='#4A5C6A'">
           {{ session['user'][0] | upper }}

@@ -12,17 +12,21 @@
   scrollbar-width: thin;
   scrollbar-color: #4A5C6A #11212D;
 }
+
 *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 *::-webkit-scrollbar-track {
   background: #11212D;
 }
+
 *::-webkit-scrollbar-thumb {
   background: #4A5C6A;
   border-radius: 6px;
 }
+
 *::-webkit-scrollbar-thumb:hover {
   background: #9BA8AB;
 }
@@ -291,9 +295,9 @@ nav.scrolled {
 
 h1 {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(44px, 6.5vw, 84px);
+  font-size: clamp(30px, 6vw, 74px);
   line-height: 1.05;
-  letter-spacing: -2.5px;
+  letter-spacing: 0px;
   color: var(--text-primary);
   max-width: 860px;
   margin-bottom: 26px;
@@ -303,6 +307,10 @@ h1 {
 h1 em {
   font-style: italic;
   color: var(--text-secondary);
+}
+
+.hero-title {
+  font-size: clamp(30px, 6vw, 74px);
 }
 
 .hero-sub {
@@ -489,7 +497,7 @@ h1 em {
   cursor: pointer;
   transition: all 0.2s;
   font-family: 'DM Sans', sans-serif;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
 }
 
 .emo-btn:hover {
@@ -561,8 +569,8 @@ h1 em {
 
 .section-title {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(32px, 4.5vw, 52px);
-  letter-spacing: -1.5px;
+  font-size: clamp(28px, 3.8vw, 44px);
+  letter-spacing: 0px;
   color: var(--text-primary);
   line-height: 1.1;
   max-width: 600px;
@@ -953,8 +961,8 @@ h1 em {
 
 .cta-section h2 {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(36px, 5vw, 64px);
-  letter-spacing: -2px;
+  font-size: clamp(30px, 4.2vw, 52px);
+  letter-spacing: 0px;
   margin-bottom: 20px;
   line-height: 1.08;
   color: var(--text-primary);
@@ -983,7 +991,7 @@ h1 em {
 /* ===================== FOOTER ===================== */
 footer {
   border-top: 1px solid var(--border);
-  padding: 56px 6vw 40px;
+  padding: 36px 6vw 28px;
   background: var(--bg-card);
 }
 
@@ -991,8 +999,8 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 48px;
-  margin-bottom: 56px;
+  gap: 40px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
@@ -1074,7 +1082,7 @@ footer {
 
 .footer-bottom {
   border-top: 1px solid var(--border);
-  padding-top: 28px;
+  padding-top: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;

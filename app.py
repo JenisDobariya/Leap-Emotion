@@ -59,7 +59,7 @@ def login():
             session["token"] = data["idToken"]
             session["refreshToken"] = data.get("refreshToken", "")
             session["user_id"] = data.get("localId", "")  # Store Firebase UID
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("homepage"))
         else:
             error_code = data.get("error", {}).get("message", "")
             # Map Firebase codes to friendly messages
@@ -122,7 +122,7 @@ def signup():
         print(f"Firestore signup write status: {fs_resp.status_code}")
         if fs_resp.status_code != 200:
             print("Write error:", fs_resp.text)
-        # Pre-populate session profile so dashboard greets user by name immediately
+        # Pre-populate session profile so homepage greets user by name immediately
         session["user_profile"] = {
             "email":        email,
             "firstName":    first_name,
@@ -131,7 +131,7 @@ def signup():
             "account_type": "trial"
         }
         
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("homepage"))
     else:
         error = data.get("error", {}).get("message", "Signup failed")
         flash(error, "danger")
@@ -207,10 +207,10 @@ def contact_post():
         
     return redirect(url_for("contact"))
 
-@app.route("/dashboard")
+@app.route("/homepage")
 @login_required
-def dashboard():
-    view = request.args.get("view", "dashboard")
+def homepage():
+    view = request.args.get("view", "homepage")
     email = session.get("user")
     
     # Re-fetch from DB if profile not cached or missing account_type
@@ -257,7 +257,7 @@ def dashboard():
         user_data = session["user_profile"]
 
     is_admin = is_admin_user()
-    return render_template("dashboard.html", user=email, view=view, user_data=user_data, is_admin=is_admin)
+    return render_template("homepage.html", user=email, view=view, user_data=user_data, is_admin=is_admin)
 
 
 @app.route("/contact")
@@ -271,7 +271,7 @@ def is_admin_user():
 @login_required
 def admin():
     if not is_admin_user():
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("homepage"))
     return render_template("admin.html")
 
 @app.route("/admin/pending-requests")
@@ -428,7 +428,7 @@ def start_free_trial():
 @login_required
 def settings():
     if request.method == "GET":
-        return redirect(url_for("dashboard", view="settings"))
+        return redirect(url_for("homepage", view="settings"))
 
     email = session.get("user")
     
@@ -486,10 +486,10 @@ def settings():
 
 
 
-    return redirect(url_for("dashboard", view="settings"))
+    return redirect(url_for("homepage", view="settings"))
 
 # -----------------------
-# Dashboard (Protected)
+# Homepage (Protected)
 # -----------------------
 @app.route("/dashboard_analysis")
 @login_required
@@ -579,7 +579,7 @@ def add_event():
             params={"auth": session.get("token")}
         )
 
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("homepage"))
 
     return render_template("add_event.html")
 
